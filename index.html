@@ -1,0 +1,3129 @@
+<!DOCTYPE html>
+<html lang="ur" class="h-full bg-slate-900">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DukanKhata - Offline Voice Khata & Owner Control</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Font (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      font-family: 'Inter', sans-serif;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+    * { box-sizing: border-box; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .pulse-glow { animation: pulseGlow 2s infinite; }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.85); }
+    }
+  </style>
+</head>
+<body class="h-full text-slate-100 antialiased flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- TOP HEADER WITH TOP-RIGHT CORNER OWNER BUTTON -->
+  <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-40 shadow-lg w-full">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-lg sm:text-xl shadow-md shrink-0">
+          <i class="fa-solid fa-store"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h1 class="text-sm sm:text-base lg:text-lg font-black tracking-tight text-white flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <span>DukanKhata</span>
+            <span class="bg-emerald-600 text-[10px] text-white px-2 py-0.5 rounded-full uppercase shrink-0 font-bold">100% OFFLINE</span>
+          </h1>
+          <p id="appHeaderSubtitle" class="text-[11px] sm:text-xs text-slate-400 truncate">Digital Voice Khata System</p>
+        </div>
+      </div>
+
+      <!-- RIGHT CORNER: ALL LANGUAGES SELECTOR, OFFLINE STATUS BADGE & OWNER LOCK BUTTON -->
+      <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 w-full sm:w-auto flex-wrap">
+        <select id="allLanguagesSelect" onchange="applyAllLanguagesOption(this.value)" title="All Languages" class="bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 px-2 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold focus:outline-none focus:border-emerald-500 max-w-[145px] sm:max-w-none truncate">
+          <option value="ur-PK">All Languages (اردو / All)</option>
+          <option value="ur-PK">اردو (Urdu - ur-PK)</option>
+          <option value="ur-Latn">Roman Urdu</option>
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="hi-IN">हिन्दी (Hindi)</option>
+          <option value="pa-Guru-IN">ਪੰਜਾਬੀ / پنجابی (Punjabi)</option>
+          <option value="ps-AF">پښتو (Pashto)</option>
+          <option value="sd-PK">سنڌي (Sindhi)</option>
+          <option value="skr-PK">سرائیکی (Saraiki)</option>
+          <option value="bal-PK">بلوچی (Balochi)</option>
+          <option value="ks-IN">کٲشُر (Kashmiri)</option>
+          <option value="ar-SA">العربية (Arabic)</option>
+          <option value="fa-IR">فارسی (Persian)</option>
+          <option value="bn-BD">বাংলা (Bengali)</option>
+          <option value="tr-TR">Türkçe (Turkish)</option>
+          <option value="fr-FR">Français (French)</option>
+          <option value="es-ES">Español (Spanish)</option>
+          <option value="de-DE">Deutsch (German)</option>
+          <option value="zh-CN">中文 (Chinese)</option>
+          <option value="ru-RU">Русский (Russian)</option>
+          <option value="ja-JP">日本語 (Japanese)</option>
+          <option value="ko-KR">한국어 (Korean)</option>
+          <option value="id-ID">Bahasa Indonesia</option>
+          <option value="ms-MY">Bahasa Melayu</option>
+          <option value="sw-KE">Kiswahili</option>
+          <option value="pt-BR">Português</option>
+          <option value="it-IT">Italiano</option>
+        </select>
+        <span id="offlineBadge" class="flex bg-emerald-950 text-emerald-300 border border-emerald-700/80 text-[10px] sm:text-xs px-3 py-1 rounded-full font-bold items-center gap-1.5 shadow-sm">
+          <span id="offlineDot" class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+          <span id="offlineBadgeText">OFFLINE READY</span>
+        </span>
+
+        <button onclick="openOwnerMode()" class="bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-sm">
+          <i class="fa-solid fa-crown text-amber-400"></i>
+          <span>Owner</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN FULL-WIDTH WIDESCREEN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto custom-scrollbar flex flex-col">
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: DUKANDAR REGISTRATION & LOGIN -->
+    <!-- ================================================================= -->
+    <div id="viewRegister" class="max-w-xl w-full mx-auto space-y-5 my-auto py-4">
+      <div class="text-center space-y-2">
+        <div class="inline-flex p-3.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-2xl text-3xl font-bold">
+          <i class="fa-solid fa-file-signature"></i>
+        </div>
+        <h2 class="text-xl font-black text-white">Dukan Khata Registration</h2>
+        <p class="text-xs text-slate-400 px-3">Dukan ka rozana hisab bina likhe bol kar daraj karne ke liye details likhein.</p>
+      </div>
+
+      <form onsubmit="handleRegistrationSubmit(event)" class="space-y-3.5 bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-xl">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Apna Pura Name *</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 text-xs"><i class="fa-solid fa-user"></i></span>
+            <input type="text" id="regName" required placeholder="e.g. Tariq Mahmood" class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Mobile Number *</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 text-xs"><i class="fa-solid fa-phone"></i></span>
+            <input type="tel" id="regMobile" required placeholder="e.g. 03127267940" class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Dukan Ka Name *</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 text-xs"><i class="fa-solid fa-shop"></i></span>
+            <input type="text" id="regShopName" required placeholder="e.g. Tariq Karyana Store" class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div class="p-3 bg-emerald-950/50 rounded-xl border border-emerald-800/60 text-[11px] text-emerald-300 space-y-1">
+          <div class="font-bold flex items-center gap-1.5 text-emerald-400">
+            <i class="fa-solid fa-circle-info"></i> Payment Plan Details:
+          </div>
+          <p>• Pehli Dafa Advance Payment: <strong>Rs. 2,000 PKR</strong></p>
+          <p>• Phir Har Mahine Baad: <strong>Rs. 1,000 / month</strong></p>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs transition-all shadow-lg flex items-center justify-center gap-2 active:scale-98">
+          <i class="fa-brands fa-whatsapp text-base"></i> Send Details to Owner (03457267940)
+        </button>
+      </form>
+
+      <!-- Quick Login Section -->
+      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center space-y-2">
+        <p class="text-xs text-slate-400 font-medium">Pehle se registered hain? Mobile number daalein:</p>
+        <div class="flex gap-2">
+          <input type="tel" id="loginMobileInput" placeholder="03127267940" class="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+          <button onclick="handleLoginCheck()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition border border-slate-700">
+            Login
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: PAYMENT & UNDER REVIEW SCREEN -->
+    <!-- ================================================================= -->
+    <div id="viewReview" class="hidden max-w-xl w-full mx-auto space-y-5 my-auto py-4 text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-3xl font-bold animate-pulse">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+
+      <div class="space-y-1">
+        <span class="inline-block bg-amber-950 text-amber-300 border border-amber-800 text-[11px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+          STATUS: UNDER REVIEW
+        </span>
+        <h2 class="text-xl font-black text-white pt-1">Owner Approval Ka Intezar Hai</h2>
+        <p id="reviewShopSummary" class="text-xs text-slate-400 px-2">Aap ki details owner ko mil chuki hain. Rs. 2,000 JazzCash par bhej kar raseed WhatsApp karein.</p>
+      </div>
+
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 text-left">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-xs text-slate-400 font-semibold">Payment Account:</span>
+          <span class="text-[10px] font-bold bg-amber-500 text-slate-950 px-2 py-0.5 rounded">JazzCash / EasyPaisa</span>
+        </div>
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-slate-400">Owner Mobile Number:</div>
+            <div class="text-lg font-black tracking-wider text-emerald-400 font-mono">03457267940</div>
+          </div>
+          <button onclick="copyText('03457267940', 'JazzCash number copied!')" class="bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700 font-bold flex items-center gap-1.5">
+            <i class="fa-regular fa-copy text-amber-400"></i> Copy
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+          <span class="text-xs text-slate-400">Advance Payment:</span>
+          <span class="text-sm font-extrabold text-white">Rs. 2,000 PKR</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="sendWhatsAppReceipt()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-base"></i> Send Payment Receipt (03457267940)
+        </button>
+      </div>
+
+      <!-- Activation Key Instant Unlock Input -->
+      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-left space-y-2 shadow">
+        <div class="text-xs font-bold text-amber-400 flex items-center justify-between">
+          <span><i class="fa-solid fa-key"></i> Offline Activation Key Unlock:</span>
+          <span class="text-[10px] text-slate-500 font-normal">Owner se milne par likhein</span>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="manualActivationKeyInput" placeholder="e.g. DK-849201" class="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white font-mono uppercase focus:outline-none focus:border-amber-500">
+          <button onclick="unlockWithActivationKey()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs transition">
+            Unlock App
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-1 flex items-center justify-center gap-4 text-xs">
+        <button onclick="checkCurrentApprovalStatus(false)" class="text-slate-400 hover:text-emerald-400 underline flex items-center gap-1">
+          <i class="fa-solid fa-rotate-right"></i> Check Approval Status Now
+        </button>
+        <button onclick="switchUserAccount()" class="text-slate-400 hover:text-white underline">
+          Change Account
+        </button>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- VIEW 3: 100% OFFLINE MULTI-LANGUAGE VOICE KHATA DASHBOARD -->
+    <!-- ================================================================= -->
+    <div id="viewDashboard" class="hidden w-full space-y-5 py-1">
+      
+      <!-- Current Shop Summary Bar (Full Width) -->
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-shop"></i>
+          </div>
+          <div>
+            <div id="dashShopTitle" class="font-black text-base sm:text-lg text-white">Tariq Karyana Store</div>
+            <div id="dashShopOwner" class="text-xs text-slate-400">Tariq Mahmood (03127267940)</div>
+          </div>
+        </div>
+        <button onclick="switchUserAccount()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3.5 py-2 rounded-xl border border-slate-700 font-bold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-right-from-bracket text-rose-400"></i> Exit Account
+        </button>
+      </div>
+
+      <!-- DESKTOP 2-COLUMN WIDESCREEN SPLIT LAYOUT -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN (lg:col-span-5): VOICE ENTRY & PARSED FORM -->
+        <div class="lg:col-span-5 bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <h3 class="font-bold text-xs sm:text-sm text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-microphone text-emerald-400"></i> Speech Se Khata Daraj Karein
+              <button onclick="openOfflineGuideModal()" class="text-slate-400 hover:text-emerald-400 text-xs px-1" title="Offline Voice Help Guide">
+                <i class="fa-solid fa-circle-question"></i>
+              </button>
+            </h3>
+
+            <select id="voiceLangSelect" onchange="updateVoiceLangBadge()" class="text-[11px] bg-slate-900 text-emerald-300 border border-emerald-700 px-2.5 py-1.5 rounded-lg font-bold focus:outline-none">
+              <option value="ur-PK" selected>Urdu (ur-PK)</option>
+              <option value="hi-IN">Hindi / Roman (hi-IN)</option>
+              <option value="en-US">English (en-US)</option>
+              <option value="en-GB">English UK (en-GB)</option>
+              <option value="pa-Guru-IN">Punjabi (pa-IN)</option>
+              <option value="ps-AF">Pashto (ps-AF)</option>
+              <option value="sd-PK">Sindhi (sd-PK)</option>
+              <option value="skr-PK">Saraiki (ur-PK)</option>
+              <option value="bal-PK">Balochi (fa-IR)</option>
+              <option value="ks-IN">Kashmiri (ur-PK)</option>
+              <option value="ar-SA">Arabic (ar-SA)</option>
+              <option value="fa-IR">Persian / Farsi (fa-IR)</option>
+              <option value="bn-BD">Bengali (bn-BD)</option>
+              <option value="tr-TR">Turkish (tr-TR)</option>
+              <option value="fr-FR">French (fr-FR)</option>
+              <option value="es-ES">Spanish (es-ES)</option>
+              <option value="de-DE">German (de-DE)</option>
+              <option value="zh-CN">Chinese (zh-CN)</option>
+              <option value="ru-RU">Russian (ru-RU)</option>
+              <option value="id-ID">Indonesian (id-ID)</option>
+              <option value="sw-KE">Swahili (sw-KE)</option>
+            </select>
+          </div>
+
+          <!-- 1. DIRECT 1-TAP OFFLINE MIC RECORDING BUTTON -->
+          <div class="flex flex-col items-center justify-center py-3">
+            <button id="micButton" type="button" onclick="toggleVoiceListening()" class="w-24 h-24 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-full flex flex-col items-center justify-center shadow-xl transition-all active:scale-95 focus:outline-none pulse-glow">
+              <i id="micIcon" class="fa-solid fa-microphone text-3xl"></i>
+              <span id="micStatusText" class="text-[11px] font-black uppercase tracking-wider mt-1">BOLEIN</span>
+            </button>
+            <div id="micListeningText" class="hidden text-xs text-emerald-400 font-bold mt-2.5 animate-pulse flex items-center justify-center gap-1.5 text-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block animate-ping"></span>
+              <span id="micListeningLabel">Recording shuru ho gayi hai... Bolein!</span>
+            </div>
+            <div id="liveInterimTranscript" class="hidden mt-2 w-full bg-slate-900 border border-emerald-500/40 text-emerald-200 text-xs px-3 py-2 rounded-xl text-center font-medium"></div>
+            <div id="recordedAudioPlayerWrap" class="hidden mt-2.5 w-full bg-slate-900 border border-slate-800 p-2 rounded-xl flex items-center justify-between gap-2">
+              <span class="text-[11px] text-emerald-400 font-bold shrink-0"><i class="fa-solid fa-wave-square"></i> Awaz Record:</span>
+              <audio id="recordedAudioPlayer" controls class="h-7 flex-1 max-w-[210px]"></audio>
+            </div>
+
+            <div id="voiceErrorBanner" class="hidden mt-2.5 w-full bg-rose-950/80 border border-rose-800 text-rose-200 text-xs p-2.5 rounded-xl flex items-center justify-between gap-2">
+              <span id="voiceErrorText">Mic permission allow karein.</span>
+              <button type="button" onclick="document.getElementById('voiceErrorBanner').classList.add('hidden')" class="text-rose-300 hover:text-white font-bold">✕</button>
+            </div>
+          </div>
+
+          <!-- 3. PRACTICE VOICE TEST PILLS -->
+          <div>
+            <div class="text-[11px] text-slate-400 mb-1.5 font-bold">💡 Test Voice Samples (Click to Parse):</div>
+            <div class="flex flex-wrap gap-1.5 text-[11px]">
+              <button onclick="processVoiceInput('kasim ne 2 kilo chini kharidi hai aur 200 rs diye hai chini 100 rs kilo hai')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-2.5 py-1.5 rounded-xl text-left transition">
+                🗣️ "Kasim 2 kilo chini, 200 diye, 100 rs kilo"
+              </button>
+              <button onclick="processVoiceInput('ali ne 500 gram patti li 1200 rs kilo 300 diye')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-2.5 py-1.5 rounded-xl text-left transition">
+                🗣️ "Ali 500 gram patti, 1200 rs kilo, 300 diye"
+              </button>
+              <button onclick="processVoiceInput('bilal 250 gram mirch udhar 150')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-2.5 py-1.5 rounded-xl text-left transition">
+                🗣️ "Bilal 250 gram mirch udhar 150"
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. EDITABLE PARSED FIELDS (ALL SECTIONS: NAME, SAMAN, MIKDAR, UNIT, RATE, TOTAL, WASOOL, UDHAR) -->
+          <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 space-y-3 shadow-inner">
+            <div class="flex items-center justify-between text-xs text-emerald-400 font-bold">
+              <span><i class="fa-solid fa-square-check"></i> Parsed Results (Har Section):</span>
+              <span id="rawVoiceSpokenText" class="text-[11px] text-slate-400 truncate max-w-[180px]">"Kasim 2 kilo chini..."</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Name (Grahak)</label>
+                <input type="text" id="parseName" placeholder="e.g. Kasim" class="w-full bg-slate-950 text-white px-2.5 py-2 rounded-lg border border-slate-700 font-bold focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Saman (Item)</label>
+                <input type="text" id="parseSaman" placeholder="e.g. Chini" class="w-full bg-slate-950 text-white px-2.5 py-2 rounded-lg border border-slate-700 font-bold focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Section</label>
+                <select id="parseSectionSelect" class="w-full bg-slate-950 text-white px-2 py-2 rounded-lg border border-slate-700 font-bold focus:outline-none focus:border-emerald-500 text-xs">
+                  <!-- Dynamic Sections -->
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Wazan (Weight/Qty)</label>
+                <input type="text" dir="ltr" id="parseWazan" oninput="syncWazanToMikdarUnit()" placeholder="e.g. 5 kilo" class="w-full bg-slate-950 text-amber-300 px-2.5 py-2 rounded-lg border border-slate-700 font-black focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Mikdar (Number)</label>
+                <input type="number" step="any" dir="ltr" id="parseMikdar" oninput="recalculateKhataAmounts('qty')" placeholder="e.g. 5" class="w-full bg-slate-950 text-white px-2.5 py-2 rounded-lg border border-slate-700 font-bold focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Unit (Kilo / Gram)</label>
+                <select id="parseUnit" onchange="recalculateKhataAmounts('unit')" class="w-full bg-slate-950 text-amber-300 px-2 py-2 rounded-lg border border-slate-700 font-bold focus:outline-none focus:border-emerald-500 text-xs">
+                  <option value="Kilo (kg)">Kilo (kg)</option>
+                  <option value="Gram (g)">Gram (g)</option>
+                  <option value="Liter (L)">Liter (L)</option>
+                  <option value="Milliliter (ml)">Milliliter (ml)</option>
+                  <option value="Adad / Piece">Adad / Piece</option>
+                  <option value="Packet">Packet</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Rate (Fi Kilo/Unit Rs)</label>
+                <input type="number" step="any" dir="ltr" id="parseRate" oninput="recalculateKhataAmounts('rate')" placeholder="e.g. 100" class="w-full bg-slate-950 text-amber-300 px-2.5 py-2 rounded-lg border border-slate-700 font-bold focus:outline-none focus:border-emerald-500">
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Kul Bill / Total (Rs)</label>
+                <input type="number" step="any" dir="ltr" id="parseTotal" oninput="recalculateKhataAmounts('total')" placeholder="0" class="w-full bg-slate-950 text-sky-400 px-2.5 py-2 rounded-lg border border-slate-700 font-black focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Wasool (Diye Rs)</label>
+                <input type="number" step="any" dir="ltr" id="parseWasool" oninput="recalculateKhataAmounts('wasool')" placeholder="0" class="w-full bg-slate-950 text-emerald-400 px-2.5 py-2 rounded-lg border border-slate-700 font-black focus:outline-none focus:border-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 font-bold">Udhar (Baqi Rs)</label>
+                <input type="number" step="any" dir="ltr" id="parseUdhar" placeholder="0" class="w-full bg-slate-950 text-rose-400 px-2.5 py-2 rounded-lg border border-slate-700 font-black focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+
+            <button onclick="saveVoiceEntryToLedger()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold rounded-xl text-xs sm:text-sm transition shadow flex items-center justify-center gap-2">
+              <i class="fa-solid fa-plus"></i> Khate Mein Save Karein
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN (lg:col-span-7): SECTIONS, SUMMARY KPIS, SEARCH & FULL-WIDTH LEDGER TABLE -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- SECTIONS TABS -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-2">
+            <div id="sectionsTabContainer" class="flex gap-2 overflow-x-auto pb-1 flex-1 custom-scrollbar">
+              <!-- Dynamic Sections -->
+            </div>
+            <button onclick="promptNewSection()" class="text-xs bg-slate-900 hover:bg-slate-800 text-emerald-300 font-bold px-3.5 py-2 rounded-xl border border-slate-700 whitespace-nowrap transition">
+              + Section
+            </button>
+          </div>
+
+          <!-- SUMMARY TOTAL CARDS -->
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="bg-sky-950/40 border border-sky-900/60 p-3.5 rounded-2xl shadow-sm">
+              <div class="text-[11px] text-sky-400 font-bold uppercase tracking-wider">Kul Bill</div>
+              <div id="kpiNet" class="text-base sm:text-xl font-black text-sky-300 mt-0.5">Rs. 0</div>
+            </div>
+            <div class="bg-emerald-950/40 border border-emerald-900/60 p-3.5 rounded-2xl shadow-sm">
+              <div class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Kul Wasool</div>
+              <div id="kpiWasool" class="text-base sm:text-xl font-black text-emerald-300 mt-0.5">Rs. 0</div>
+            </div>
+            <div class="bg-rose-950/40 border border-rose-900/60 p-3.5 rounded-2xl shadow-sm">
+              <div class="text-[11px] text-rose-400 font-bold uppercase tracking-wider">Kul Udhar (Baqi)</div>
+              <div id="kpiUdhar" class="text-base sm:text-xl font-black text-rose-300 mt-0.5">Rs. 0</div>
+            </div>
+          </div>
+
+          <!-- SEARCH & ADD CUSTOMER -->
+          <div class="flex items-center gap-2.5">
+            <div class="relative flex-1">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <input type="text" id="ledgerSearchInput" onkeyup="renderLedger()" placeholder="Grahak ya Saman ka naam search karein..." class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <button onclick="promptNewCustomer()" class="bg-slate-950 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800 whitespace-nowrap transition">
+              + Naya Grahak
+            </button>
+          </div>
+
+          <!-- TRANSACTIONS TABLE -->
+          <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+            <div class="p-3.5 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-2">
+                <i class="fa-solid fa-book text-emerald-400"></i> Khata Records
+              </span>
+              <span id="recordCountTag" class="text-xs bg-slate-800 text-slate-300 font-bold px-3 py-0.5 rounded-full">0 Entries</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase bg-slate-900/40">
+                    <th class="p-3">Name</th>
+                    <th class="p-3">Saman</th>
+                    <th class="p-3">Mikdar & Unit</th>
+                    <th class="p-3 text-right">Rate</th>
+                    <th class="p-3 text-right">Total</th>
+                    <th class="p-3 text-right">Wasool</th>
+                    <th class="p-3 text-right">Udhar</th>
+                    <th class="p-3 text-center">Del</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- VIEW 4: OWNER MASTER CONTROL PANEL (Password: 20091110) -->
+    <!-- ================================================================= -->
+    <div id="viewOwner" class="hidden w-full space-y-5 py-1">
+      <div class="flex items-center justify-between bg-slate-950 p-4 rounded-2xl border border-amber-500/30 shadow-md">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-lg">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-amber-400">OWNER MASTER CONTROL</h2>
+            <p class="text-xs text-slate-400">Tamam dukandaron ko Add, Welcome, Mahana Fee & Block karein</p>
+          </div>
+        </div>
+        <button onclick="exitOwnerMode()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-left"></i> Khata App
+        </button>
+      </div>
+
+      <!-- Owner Stats (4 Columns on Desktop) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
+          <div class="text-xs text-slate-400 font-bold uppercase">Total Dukanein</div>
+          <div id="statTotalShops" class="text-2xl font-black text-white mt-1">0</div>
+        </div>
+        <div class="bg-emerald-950/40 border border-emerald-800/60 p-4 rounded-2xl">
+          <div class="text-xs text-emerald-400 font-bold uppercase">Welcomed (Active)</div>
+          <div id="statActiveShops" class="text-2xl font-black text-emerald-300 mt-1">0</div>
+        </div>
+        <div class="bg-amber-950/40 border border-amber-800/60 p-4 rounded-2xl">
+          <div class="text-xs text-amber-400 font-bold uppercase">Under Review</div>
+          <div id="statPendingShops" class="text-2xl font-black text-amber-300 mt-1">0</div>
+        </div>
+        <div class="bg-indigo-950/40 border border-indigo-800/60 p-4 rounded-2xl">
+          <div class="text-xs text-indigo-400 font-bold uppercase">Kul Kamai</div>
+          <div id="statTotalRevenue" class="text-xl sm:text-2xl font-black text-indigo-300 mt-1">Rs. 0</div>
+        </div>
+      </div>
+
+      <!-- Add Shop Form (Full-Width Horizontal Row on Desktop) -->
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-shop-lock"></i> Add Shop (WhatsApp Details Se Nayi Dukan Shamil Karein)
+          </h3>
+          <span class="text-xs text-slate-400 font-mono">JazzCash: 03457267940</span>
+        </div>
+
+        <form onsubmit="handleOwnerAddShop(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+          <div>
+            <label class="block text-xs text-slate-400 font-bold mb-1">Dukandar Ka Pura Name *</label>
+            <input type="text" id="addOwnerName" required placeholder="e.g. Tariq Mahmood" class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 font-bold mb-1">Mobile Number *</label>
+            <input type="tel" id="addOwnerMobile" required placeholder="e.g. 03127267940" class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 font-bold mb-1">Dukan Ka Name *</label>
+            <input type="text" id="addShopTitle" required placeholder="e.g. Tariq Store" class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> Add Shop
+            </button>
+          </div>
+
+          <div class="md:col-span-4 pt-1">
+            <label class="inline-flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+              <input type="checkbox" id="addAutoWelcome" checked class="rounded bg-slate-900 border-slate-700 text-amber-500">
+              <span>Rs. 2,000 advance mil gaye hain — <strong>Foran Welcome (Unlock)</strong> kar dein</span>
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex gap-2 text-xs flex-wrap">
+          <button onclick="setShopFilter('all')" id="filterAll" class="px-3.5 py-2 rounded-xl font-bold bg-amber-500 text-slate-950">All</button>
+          <button onclick="setShopFilter('pending')" id="filterPending" class="px-3.5 py-2 rounded-xl font-bold bg-slate-950 text-slate-300 border border-slate-800">Under Review</button>
+          <button onclick="setShopFilter('active')" id="filterActive" class="px-3.5 py-2 rounded-xl font-bold bg-slate-950 text-slate-300 border border-slate-800">Welcomed</button>
+          <button onclick="setShopFilter('suspended')" id="filterSuspended" class="px-3.5 py-2 rounded-xl font-bold bg-slate-950 text-slate-300 border border-slate-800">Blocked</button>
+        </div>
+
+        <input type="text" id="ownerSearchInput" onkeyup="renderOwnerShops()" placeholder="Dukan ya mobile number search..." class="w-full sm:w-72 px-3.5 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500">
+      </div>
+
+      <!-- Shopkeepers List Container (Multi-Column Desktop Grid) -->
+      <div id="shopsListContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <!-- Dynamic Shop Cards -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- OFFLINE VOICE SETUP GUIDE MODAL -->
+  <div id="offlineGuideModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-black text-emerald-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-microphone-slash"></i> Offline Voice Pack Setup (30 Seconds)
+        </h3>
+        <button onclick="closeOfflineGuideModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
+      </div>
+
+      <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+        <p>Agar aap chahte hain ke mobile internet ke bghair <strong>100% Offline Speech Mic</strong> chale, to Android mobile par yeh settings karein:</p>
+        <ol class="list-decimal pl-4 space-y-1.5 text-slate-400 text-[11px]">
+          <li>Mobile ki <strong>Settings</strong> khol kar <strong>Google / General Management</strong> par jayein.</li>
+          <li><strong>Voice Typing / Voice Input</strong> muntakhib karein.</li>
+          <li><strong>Offline Speech Recognition</strong> par click karke <strong>Urdu (ur-PK)</strong> download karein (size: 20 MB).</li>
+          <li>Aap mobile keyboard ka <strong>Mic Icon</strong> daba kar bhi bina internet ke bol kar likh sakte hain!</li>
+        </ol>
+      </div>
+
+      <button onclick="closeOfflineGuideModal()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs">
+        Samajh Aa Gaya
+      </button>
+    </div>
+  </div>
+
+  <!-- OWNER PASSWORD MODAL (Input empty initially, Password: 20091110) -->
+  <div id="ownerPassModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 space-y-4 shadow-2xl">
+      <div class="text-center space-y-1.5">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xl mx-auto">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <h3 class="text-sm font-black text-white">Owner Master Login</h3>
+        <p class="text-[11px] text-slate-400">Khufiya password daraj karein.</p>
+      </div>
+
+      <form onsubmit="verifyOwnerModalPassword(event)" class="space-y-3">
+        <input type="password" id="modalOwnerPassInput" required autocomplete="off" placeholder="Password likhein..." class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700 text-white font-mono tracking-widest focus:outline-none focus:border-amber-500">
+        <p id="modalPassError" class="hidden text-[11px] text-rose-400 font-bold text-center">Galat password! Dobara koshish karein.</p>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="closeOwnerPassModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold">Cancel</button>
+          <button type="submit" class="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-black">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOM INPUT MODAL (New Section / Customer) -->
+  <div id="customInputModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xs w-full p-5 space-y-4 shadow-2xl">
+      <h3 id="customModalTitle" class="text-sm font-black text-white">Naya Name</h3>
+      <input type="text" id="customModalInput" placeholder="Name likhein..." class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-emerald-500">
+      <div class="flex gap-2">
+        <button type="button" onclick="closeCustomModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold">Cancel</button>
+        <button type="button" id="customModalSaveBtn" class="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl text-xs font-black">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-800 py-2.5 text-center text-[11px] text-slate-500">
+    <p>DukanKhata Voice App • Owner JazzCash / WhatsApp: <span class="text-emerald-400 font-mono font-bold">03457267940</span></p>
+  </footer>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700 text-xs font-bold transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastText">Notification text</span>
+  </div>
+
+  <script>
+    const OWNER_PASS = "20091110";
+    const DB_KEY = "khata_v2_shops_db";
+    const CURRENT_USER_KEY = "khata_v2_active_mobile";
+
+    let activeShop = null;
+    let isOwnerAuthenticated = false;
+    let currentShopFilter = "all";
+    let recognition = null;
+    let isListening = false;
+    let selectedVoiceLang = "ur-PK";
+
+    function normalizePhone(num) {
+      let digits = String(num || "").replace(/\D/g, "");
+      if (digits.startsWith("0092")) digits = "0" + digits.slice(4);
+      else if (digits.startsWith("92") && digits.length === 12) digits = "0" + digits.slice(2);
+      else if (digits.length === 10 && digits.startsWith("3")) digits = "0" + digits;
+      return digits;
+    }
+
+    function generateActivationKey(mobile) {
+      let hash = 0;
+      const str = "DK_" + normalizePhone(mobile);
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return "DK-" + Math.abs(hash).toString().slice(-6).padStart(6, "8");
+    }
+
+    function normalizeDigitsToAscii(str) {
+      let out = String(str || "");
+      const arabicIndic = "٠١٢٣٤٥٦٧٨٩";
+      const persianIndic = "۰۱۲۳۴۵۶۷۸۹";
+      const devanagariIndic = "०१२३४५६७८९";
+      const bengaliIndic = "০১২৩৪৫۶۷۸۹";
+
+      for (let i = 0; i < 10; i++) {
+        out = out.replace(new RegExp(arabicIndic[i], "g"), String(i));
+        out = out.replace(new RegExp(persianIndic[i], "g"), String(i));
+        out = out.replace(new RegExp(devanagariIndic[i], "g"), String(i));
+        out = out.replace(new RegExp(bengaliIndic[i], "g"), String(i));
+      }
+      return out;
+    }
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      const text = document.getElementById("toastText");
+      const icon = document.getElementById("toastIcon");
+      if (!toast || !text) return;
+      text.textContent = msg;
+      icon.className = type === "error"
+        ? "fa-solid fa-circle-xmark text-rose-400"
+        : "fa-solid fa-circle-check text-emerald-400";
+      toast.classList.remove("opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "pointer-events-none");
+      }, 2800);
+    }
+
+    function copyText(str, msg) {
+      try {
+        const el = document.createElement("textarea");
+        el.value = str;
+        el.setAttribute("readonly", "");
+        el.style.position = "absolute";
+        el.style.left = "-9999px";
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        showToast(msg || "Copied!");
+      } catch (e) {
+        showToast("Copy failed", "error");
+      }
+    }
+
+    function getAllShops() {
+      try {
+        const raw = localStorage.getItem(DB_KEY) || sessionStorage.getItem(DB_KEY) || (window.name && window.name.startsWith("[") ? window.name : "[]");
+        return JSON.parse(raw || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveAllShops(shops) {
+      const str = JSON.stringify(shops);
+      try { localStorage.setItem(DB_KEY, str); } catch (e) {}
+      try { sessionStorage.setItem(DB_KEY, str); } catch (e) {}
+      try { window.name = str; } catch (e) {}
+    }
+
+    function getActiveMobile() {
+      return normalizePhone(localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY) || "");
+    }
+
+    function setActiveMobile(mob) {
+      const clean = normalizePhone(mob);
+      try { localStorage.setItem(CURRENT_USER_KEY, clean); } catch (e) {}
+      try { sessionStorage.setItem(CURRENT_USER_KEY, clean); } catch (e) {}
+    }
+    function formatWazanLabel(qty, unit) {
+      const num = parseFloat(qty);
+      if (!num || isNaN(num)) return "";
+      const u = String(unit || "Kilo (kg)").toLowerCase();
+      if (u.includes("kilo") || u.includes("kg")) return `${num} kilo`;
+      if (u.includes("gram") || u.includes("gm") || u === "g") return `${num} gram`;
+      if (u.includes("liter") || u.includes("ltr") || u === "l") return `${num} liter`;
+      if (u.includes("milliliter") || u.includes("ml")) return `${num} ml`;
+      if (u.includes("packet")) return `${num} packet`;
+      if (u.includes("adad") || u.includes("piece")) return `${num} adad`;
+      return `${num} ${unit}`.trim();
+    }
+
+    function syncWazanToMikdarUnit() {
+      const wazanRaw = normalizeDigitsToAscii(document.getElementById("parseWazan").value || "").trim();
+      const converted = convertNumberWordsToDigits(wazanRaw);
+      const match = converted.match(/(\d+(?:[\.,]\d+)?)\s*(kilo|kilogram|kg|gram|grams|gm|g|paao|pao|liter|litre|ltr|ml|milliliter|adad|piece|pcs|packet|pkt|bori|کلو|گرام|پاؤ|لیٹر|پیکٹ|بوری)?/i);
+      if (match) {
+        let qty = parseFloat(match[1].replace(/,/g, "")) || 1;
+        const rawU = (match[2] || "").toLowerCase();
+        const unitSel = document.getElementById("parseUnit");
+        if (/^(gram|grams|gm|g|گرام)$/.test(rawU)) {
+          unitSel.value = "Gram (g)";
+        } else if (/^(paao|pao|پاؤ)$/.test(rawU)) {
+          qty = qty * 250;
+          unitSel.value = "Gram (g)";
+        } else if (/^(liter|litre|ltr|لیٹر)$/.test(rawU)) {
+          unitSel.value = "Liter (L)";
+        } else if (/^(ml|milliliter)$/.test(rawU)) {
+          unitSel.value = "Milliliter (ml)";
+        } else if (/^(adad|piece|pcs)$/.test(rawU)) {
+          unitSel.value = "Adad / Piece";
+        } else if (/^(packet|pkt|bori|پیکٹ|بوری)$/.test(rawU)) {
+          unitSel.value = "Packet";
+        } else if (/^(kilo|kilogram|kg|کلو)$/.test(rawU)) {
+          unitSel.value = "Kilo (kg)";
+        }
+        document.getElementById("parseMikdar").value = qty;
+        recalculateKhataAmounts("qty");
+      }
+    }
+
+    function recalculateKhataAmounts(source) {
+      const qty = parseFloat(document.getElementById("parseMikdar").value) || 0;
+      const unit = document.getElementById("parseUnit").value || "Kilo (kg)";
+      const rate = parseFloat(document.getElementById("parseRate").value) || 0;
+      let total = parseFloat(document.getElementById("parseTotal").value) || 0;
+      const wasool = parseFloat(document.getElementById("parseWasool").value) || 0;
+
+      if (source === "qty" || source === "unit" || source === "rate") {
+        if (rate > 0 && qty > 0) {
+          const factor = (unit === "Gram (g)" || unit === "Milliliter (ml)") ? (qty / 1000) : qty;
+          total = Math.round(factor * rate * 100) / 100;
+          document.getElementById("parseTotal").value = total;
+        }
+      }
+
+      const udhar = Math.max(0, Math.round((total - wasool) * 100) / 100);
+      document.getElementById("parseUdhar").value = udhar;
+      if ((source === "qty" || source === "unit") && document.getElementById("parseWazan")) {
+        document.getElementById("parseWazan").value = formatWazanLabel(qty, unit);
+      }
+    }
+
+    function convertNumberWordsToDigits(inputStr) {
+      let s = " " + String(inputStr || "") + " ";
+
+      // Fractions & half/quarter phrases
+      s = s.replace(/(?:^|[\s\-،,]+)(?:aadha|adha|half|آدھا|ادھا)(?=[\s\-،,]+|$)/gi, " 0.5 ");
+      s = s.replace(/(?:^|[\s\-،,]+)(?:derh|dedh|ڈیڑھ)(?=[\s\-،,]+|$)/gi, " 1.5 ");
+      s = s.replace(/(?:^|[\s\-،,]+)(?:dhai|dhaa'i|ڈھائی)(?=[\s\-،,]+|$)/gi, " 2.5 ");
+      s = s.replace(/(?:^|[\s\-،,]+)(?:pauna|پونا)(?=[\s\-،,]+|$)/gi, " 0.75 ");
+      s = s.replace(/(?:^|[\s\-،,]+)(?:sawa|سوا)(?=[\s\-،,]+|$)/gi, " 1.25 ");
+
+      const wordMap = [
+        ["ek", "1"], ["aik", "1"], ["one", "1"], ["ایک", "1"], ["اک", "1"],
+        ["do", "2"], ["two", "2"], ["دو", "2"],
+        ["teen", "3"], ["tin", "3"], ["three", "3"], ["تین", "3"],
+        ["chaar", "4"], ["char", "4"], ["four", "4"], ["چار", "4"],
+        ["paanch", "5"], ["panch", "5"], ["five", "5"], ["پانچ", "5"],
+        ["chhe", "6"], ["chay", "6"], ["six", "6"], ["چھ", "6"], ["چھے", "6"],
+        ["saat", "7"], ["sat", "7"], ["seven", "7"], ["سات", "7"],
+        ["aath", "8"], ["ath", "8"], ["eight", "8"], ["آٹھ", "8"],
+        ["nau", "9"], ["no", "9"], ["nine", "9"], ["نو", "9"],
+        ["das", "10"], ["dus", "10"], ["ten", "10"], ["دس", "10"],
+        ["gyarah", "11"], ["eleven", "11"], ["گیارہ", "11"],
+        ["barah", "12"], ["twelve", "12"], ["بارہ", "12"],
+        ["pandrah", "15"], ["fifteen", "15"], ["پندرہ", "15"],
+        ["bees", "20"], ["bis", "20"], ["twenty", "20"], ["بیس", "20"],
+        ["pachees", "25"], ["pachis", "25"], ["twenty five", "25"], ["پچیس", "25"],
+        ["tees", "30"], ["tis", "30"], ["thirty", "30"], ["تیس", "30"],
+        ["chalis", "40"], ["chalees", "40"], ["forty", "40"], ["چالیس", "40"],
+        ["pachas", "50"], ["pachaas", "50"], ["fifty", "50"], ["پچاس", "50"],
+        ["saath", "60"], ["sixty", "60"], ["ساٹھ", "60"],
+        ["sattar", "70"], ["seventy", "70"], ["ستر", "70"],
+        ["assi", "80"], ["eighty", "80"], ["اسی", "80"],
+        ["nabbe", "90"], ["ninety", "90"], ["نوے", "90"],
+        ["sau", "100"], ["so", "100"], ["hundred", "100"], ["سو", "100"], ["سَو", "100"],
+        ["hazaar", "1000"], ["hazar", "1000"], ["thousand", "1000"], ["ہزار", "1000"]
+      ];
+
+      for (const [word, digit] of wordMap) {
+        const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const re = new RegExp(`(^|[\\s،,\\-]+)${escaped}(?=[\\s،,\\-]|$)`, "gi");
+        s = s.replace(re, `$1${digit}`);
+      }
+
+    
+      // Combine multipliers like "2 100" -> "200" or "2 1000" -> "2000" when followed by currency/unit/end
+      s = s.replace(/\b(\d+)\s+(1000)(?=\s+(?:rupay|rupe|rupees|rs|روپے|kilo|kg|gram|gm|liter|litre|ltr|ml|packet|piece|adad|کلو|گرام|لیٹر)\b|$)/gi, (_, a, b) => String(Number(a) * Number(b)));
+      s = s.replace(/\b(\d+)\s+(100)(?=\s+(?:rupay|rupe|rupees|rs|روپے|kilo|kg|gram|gm|liter|litre|ltr|ml|packet|piece|adad|کلو|گرام|لیٹر)\b|$)/gi, (_, a, b) => String(Number(a) * Number(b)));
+
+      return s.replace(/\s+/g, " ").trim();
+    }
+
+    function ensureSectionExistsAndSelect(sectionName, saveToDb = true) {
+      const cleanSec = String(sectionName || "Rozana Khata").trim() || "Rozana Khata";
+      if (!activeShop) {
+        const secSel = document.getElementById("parseSectionSelect");
+        if (secSel) {
+          if (!Array.from(secSel.options).some(o => o.value === cleanSec)) {
+            const opt = document.createElement("option");
+            opt.value = cleanSec;
+            opt.textContent = cleanSec;
+            secSel.appendChild(opt);
+          }
+          secSel.value = cleanSec;
+        }
+        return cleanSec;
+      }
+
+      activeShop.sections = activeShop.sections || ["Rozana Khata", "Udhar List", "Cash Sale"];
+      if (!activeShop.sections.includes(cleanSec)) {
+        activeShop.sections.push(cleanSec);
+      }
+      activeShop.activeSection = cleanSec;
+
+      if (saveToDb) {
+        const shops = getAllShops();
+        const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+        if (idx !== -1) {
+          shops[idx] = activeShop;
+          saveAllShops(shops);
+        }
+      }
+
+      renderDashboardData();
+      const secSel = document.getElementById("parseSectionSelect");
+      if (secSel) secSel.value = cleanSec;
+      return cleanSec;
+    }
+
+    function detectTargetSectionFromSpeech(rawText) {
+      const t = String(rawText || "").toLowerCase();
+      const secCmd = t.match(/(?:section|sektion|khata)\s+(?:me|mein|main)?\s*([a-zA-Z\u0600-\u06FF\s]{2,25})/i);
+      if (secCmd && secCmd[1]) {
+        const candidate = secCmd[1].replace(/\b(khata|section|sektion|mein|me|main|karo|karen|badlo|change)\b/gi, "").trim();
+        if (candidate.length >= 2) {
+          return candidate.split(/\s+/).map(w => /^[a-zA-Z]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(" ");
+        }
+      }
+
+      if (/\b(?:udhar|adhaar|qarz|baqi|ادھار|قرض|باقی)\b/i.test(t)) {
+        return "Udhar List";
+      }
+      if (/\b(?:naqd|cash|rokar|نقد|کیش)\b/i.test(t)) {
+        return "Cash Sale";
+      }
+      return "Rozana Khata";
+    }
+
+    function canonicalizeItemName(rawItem) {
+      let s = String(rawItem || "")
+        .replace(/^(?:aaj|aj|kal|udhar|adhaar|qarz|baqi|ka|ki|ke|wala|wali|ka\s+ek|ek|aik|do|teen|chaar|paanch|chhe|saat|aath|nau|das|کوئی|بھی|کوئ)\s+/gi, "")
+        .replace(/\b(?:aaj|aj|kal|udhar|adhaar|qarz|baqi|li|liya|liye|kharidi|kharida|diya|diye|hai|hain|hy|ka|ki|ke|wala|wali|rupay|rupe|rupees|rs)\b/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!s) return "Saman";
+
+      const lower = s.toLowerCase();
+      if (/^(?:ata|aata|atta|آٹا|اٹا)$/.test(lower)) return "Ata";
+      if (/^(?:chini|cheeni|sugar|چینی)$/.test(lower)) return "Chini";
+      if (/^(?:safeguard|sefgard|saifgard|سیف گارڈ|صابن|sabun|soap)$/.test(lower)) {
+        return (lower.includes("safeguard") || lower.includes("sefgard") || lower.includes("saifgard") || lower.includes("سیف")) ? "Safeguard Sabun" : "Sabun";
+      }
+      if (/^(?:shampoo|shempu|shampu|شیمپو)$/.test(lower)) return "Shampoo";
+      if (/^(?:chawal|rice|چاول)$/.test(lower)) return "Chawal";
+      if (/^(?:oil|tel|cooking oil|تیل)$/.test(lower)) return "Oil";
+      if (/^(?:ghee|گھی)$/.test(lower)) return "Ghee";
+      if (/^(?:doodh|dudh|milk|دودھ)$/.test(lower)) return "Doodh";
+      if (/^(?:patti|chai|chaye|tea|پتی|چائے)$/.test(lower)) return "Patti";
+      if (/^(?:mirch|lal mirch|مرچ)$/.test(lower)) return "Mirch";
+      if (/^(?:namak|salt|نمک)$/.test(lower)) return "Namak";
+      if (/^(?:daal|dal|دال)$/.test(lower)) return "Daal";
+
+      return s.split(/\s+/).map(w => /^[a-zA-Z]/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(" ");
+    }
+
+    function normalizeUnitToken(rawUnit, qtyNum) {
+      const u = String(rawUnit || "").toLowerCase().trim();
+      if (/^(?:gram|grams|gm|g|گرام)$/.test(u)) return { qty: qtyNum, unit: "Gram (g)" };
+      if (/^(?:paao|pao|پاؤ)$/.test(u)) return { qty: qtyNum * 250, unit: "Gram (g)" };
+      if (/^(?:liter|litre|ltr|l|لیٹر)$/.test(u)) return { qty: qtyNum, unit: "Liter (L)" };
+      if (/^(?:ml|milliliter)$/.test(u)) return { qty: qtyNum, unit: "Milliliter (ml)" };
+      if (/^(?:packet|pkt|bori|پیکٹ|بوری)$/.test(u)) return { qty: qtyNum, unit: "Packet" };
+      if (/^(?:adad|piece|pcs|darjan|dozen|درجن)$/.test(u)) {
+        const mult = /^(?:darjan|dozen|درجن)$/.test(u) ? 12 : 1;
+        return { qty: qtyNum * mult, unit: "Adad / Piece" };
+      }
+      if (/^(?:kilo|kilogram|kg|cilo|کلو)$/.test(u)) return { qty: qtyNum, unit: "Kilo (kg)" };
+      return { qty: qtyNum, unit: "Adad / Piece" };
+    }
+
+    function extractCustomerNameFromSpeech(cleanText) {
+      const stopWords = new Set([
+        "aaj", "aj", "kal", "ne", "se", "ko", "ka", "ki", "ke", "li", "liya", "liye", "kharidi", "kharida",
+        "diya", "diye", "hai", "hain", "hy", "aur", "our", "udhar", "adhaar", "qarz", "baqi", "wasool",
+        "rupay", "rupe", "rupees", "rs", "kilo", "kg", "cilo", "gram", "gm", "g", "paao", "pao",
+        "liter", "litre", "ltr", "ml", "packet", "piece", "adad", "sabun", "koi", "bhi", "ho",
+        "sakta", "sakti", "sara", "saman", "yeh", "ye", "woh", "wo",
+        "آج", "نے", "لی", "لیا", "لیے", "ادھار", "وصول", "روپے", "کلو", "گرام", "اور", "سارا", "سامان"
+      ]);
+
+      const markerMatch = cleanText.match(/\b([a-zA-Z\u0600-\u06FF\u0900-\u097F\u0980-\u09FF]{2,25})\s+(?:ne|se|ko|bhai|ji|نے|سے|کو)\b/i);
+      if (markerMatch && markerMatch[1]) {
+        const cleanCand = markerMatch[1].replace(/[^a-zA-Z\u0600-\u06FF]/g, "");
+        if (cleanCand.length >= 2 && !stopWords.has(cleanCand.toLowerCase())) {
+          return /^[a-zA-Z]/.test(cleanCand) ? cleanCand.charAt(0).toUpperCase() + cleanCand.slice(1).toLowerCase() : cleanCand;
+        }
+      }
+
+      const tokens = cleanText.replace(/[0-9\.]+/g, " ").split(/\s+/);
+      for (const tok of tokens) {
+        const cleaned = tok.replace(/[^a-zA-Z\u0600-\u06FF]/g, "");
+        if (cleaned.length >= 2 && !stopWords.has(cleaned.toLowerCase())) {
+          return /^[a-zA-Z]/.test(cleaned) ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase() : cleaned;
+        }
+      }
+      return "Grahak";
+    }
+
+    function parseMultiItemKhataSpeech(rawText) {
+      const asciiDigits = normalizeDigitsToAscii(String(rawText || "")).trim();
+      if (!asciiDigits) return { items: [], customerName: "Grahak", sectionName: "Rozana Khata", wasool: 0, isUdhar: false };
+
+      const cleanText = convertNumberWordsToDigits(asciiDigits);
+      const sectionName = detectTargetSectionFromSpeech(cleanText);
+      const isUdhar = /\b(?:udhar|adhaar|qarz|baqi|ادھار|قرض|باقی)\b/i.test(cleanText);
+      const customerName = extractCustomerNameFromSpeech(cleanText);
+
+      const clauses = cleanText
+        .split(/(?:،|,|\band\b|\baur\b|\bour\b|\bاور\b|\.|؛)/i)
+        .map(c => c.trim())
+        .filter(Boolean);
+
+      const itemsMap = new Map();
+      const rateHints = [];
+      let wasool = 0;
+
+      const unitWordPattern = "(?:kilo|kilogram|kg|cilo|gram|grams|gm|g|paao|pao|liter|litre|ltr|ml|milliliter|adad|piece|pcs|packet|pkt|bori|darjan|dozen|کلو|گرام|پاؤ|لیٹر|پیکٹ|درجن|بوری)";
+
+      function upsertItem(rawName, qtyNum, unitStr, explicitRate) {
+        const canonName = canonicalizeItemName(rawName);
+        if (!canonName || canonName.toLowerCase() === customerName.toLowerCase()) return;
+        const key = canonName.toLowerCase();
+        const normU = normalizeUnitToken(unitStr, qtyNum || 1);
+
+        if (!itemsMap.has(key)) {
+          itemsMap.set(key, {
+            name: canonName,
+            mikdar: normU.qty,
+            unit: normU.unit,
+            rate: explicitRate || 0
+          });
+        } else {
+          const existing = itemsMap.get(key);
+          if (existing.unit === normU.unit) {
+            existing.mikdar = Math.round((existing.mikdar + normU.qty) * 1000) / 1000;
+          } else if (existing.unit === "Kilo (kg)" && normU.unit === "Gram (g)") {
+            existing.mikdar = Math.round((existing.mikdar + normU.qty / 1000) * 1000) / 1000;
+          } else if (existing.unit === "Gram (g)" && normU.unit === "Kilo (kg)") {
+            existing.mikdar = Math.round((existing.mikdar + normU.qty * 1000) * 1000) / 1000;
+          } else if (existing.unit === "Liter (L)" && normU.unit === "Milliliter (ml)") {
+            existing.mikdar = Math.round((existing.mikdar + normU.qty / 1000) * 1000) / 1000;
+          } else {
+            existing.mikdar = Math.round((existing.mikdar + normU.qty) * 1000) / 1000;
+          }
+          if (explicitRate && explicitRate > 0) {
+            existing.rate = explicitRate;
+          }
+        }
+      }
+
+      for (const clause of clauses) {
+        const hasCurrency = /\b(?:rupe|rupay|rupees|rs|روپے)\b/i.test(clause);
+        const hasQtyUnit = new RegExp("\\b\\d+(?:[\\.,]\\d+)?\\s*" + unitWordPattern + "\\b", "i").test(clause);
+        const isPureRateSentence = hasCurrency && !hasQtyUnit;
+
+        if (!isPureRateSentence) {
+          const wMatch = clause.match(/(?:wasool|jama|paid|received|وصول|جمع)\s*(?:kiya|kiye|diye|hai|rs\.?|rupay|rupe|روپے)?\s*[:\-]?\s*(\d+(?:[\.,]\d+)?)/i) ||
+                         clause.match(/(\d+(?:[\.,]\d+)?)\s*(?:rs\.?|rupay|rupe|rupees|روپے)?\s*(?:wasool|jama|paid|received|وصول|جمع)\b/i);
+          if (wMatch && wMatch[1]) {
+            wasool += parseFloat(wMatch[1].replace(/,/g, "")) || 0;
+            continue;
+          }
+        }
+
+        const qtyItemMatches = [...clause.matchAll(new RegExp("(\\d+(?:[\\.,]\\d+)?)\\s*(" + unitWordPattern + ")\\s*(?:of\\s+|ka\\s+|ki\\s+)?([a-zA-Z\\u0600-\\u06FF]{2,22}(?:\\s+(?:sabun|soap|patti|mirch|oil|tel|daal|dal|صابن|مرچ|تیل|دال))?)", "gi"))];
+
+        if (qtyItemMatches.length > 0) {
+          for (const m of qtyItemMatches) {
+            const qNum = parseFloat(m[1].replace(/,/g, "")) || 1;
+            const uWord = m[2];
+            const itemRaw = m[3];
+            if (/^(?:rupay|rupe|rupees|rs|روپے|udhar|wasool|ادھار|وصول)$/i.test(itemRaw.trim())) continue;
+
+            let itemRate = 0;
+            if (hasCurrency) {
+              const rNumMatch = clause.match(/(\d+(?:[\.,]\d+)?)\s*(?:rs\.?|rupay|rupe|rupees|روپے)/i);
+              if (rNumMatch) itemRate = parseFloat(rNumMatch[1].replace(/,/g, "")) || 0;
+            }
+            upsertItem(itemRaw, qNum, uWord, itemRate);
+          }
+        } else if (hasCurrency) {
+          const rateNumMatch = clause.match(/(\d+(?:[\.,]\d+)?)\s*(?:rs\.?|rupay|rupe|rupees|روپے)/i);
+          const rVal = rateNumMatch ? (parseFloat(rateNumMatch[1].replace(/,/g, "")) || 0) : 0;
+          if (rVal > 0) {
+            const itemBeforeMatch = clause.match(new RegExp("([a-zA-Z\\u0600-\\u06FF]{2,22})\\s+(?:aaj|aj|kal|ka|ki|ke|rate|bhav|qeemat|ریٹ|قیمت)?\\s*\\d+(?:[\\.,]\\d+)?\\s*(?:rs\\.?|rupay|rupe|rupees|روپے)", "i"));
+            const candName = itemBeforeMatch ? itemBeforeMatch[1] : clause;
+            const canon = canonicalizeItemName(candName);
+            if (canon && canon !== "Saman" && canon.toLowerCase() !== customerName.toLowerCase()) {
+              rateHints.push({ key: canon.toLowerCase(), name: canon, rate: rVal });
+            }
+          }
+        }
+      }
+
+      for (const rh of rateHints) {
+        if (itemsMap.has(rh.key)) {
+          itemsMap.get(rh.key).rate = rh.rate;
+        } else {
+          for (const [k, obj] of itemsMap.entries()) {
+            if (k.includes(rh.key) || rh.key.includes(k)) {
+              obj.rate = rh.rate;
+            }
+          }
+        }
+      }
+
+      const items = Array.from(itemsMap.values()).map(it => {
+        const factor = (it.unit === "Gram (g)" || it.unit === "Milliliter (ml)") ? (it.mikdar / 1000) : it.mikdar;
+        const total = it.rate > 0 ? Math.round(factor * it.rate * 100) / 100 : 0;
+        const udhar = isUdhar ? Math.max(0, Math.round((total - wasool) * 100) / 100) : 0;
+        const itemWasool = (!isUdhar && total > 0) ? total : 0;
+        return {
+          ...it,
+          total,
+          wasool: itemWasool,
+          udhar
+        };
+      });
+
+      return {
+        customerName,
+        sectionName,
+        items,
+        wasool,
+        isUdhar
+      };
+    }
+
+    function autoAddParsedVoiceToKhataIfReady(spokenText) {
+      if (!spokenText || !spokenText.trim()) return;
+      const parsed = parseMultiItemKhataSpeech(spokenText);
+
+      ensureSectionExistsAndSelect(parsed.sectionName, true);
+
+      if (!activeShop || !parsed.items || parsed.items.length === 0) return;
+
+      activeShop.transactions = activeShop.transactions || [];
+      const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      let remainingWasool = parsed.wasool || 0;
+
+      for (let i = parsed.items.length - 1; i >= 0; i--) {
+        const it = parsed.items[i];
+        let txWasool = 0;
+        let txUdhar = 0;
+        if (parsed.isUdhar) {
+          if (remainingWasool > 0 && it.total > 0) {
+            txWasool = Math.min(remainingWasool, it.total);
+            remainingWasool = Math.max(0, Math.round((remainingWasool - txWasool) * 100) / 100);
+          }
+          txUdhar = Math.max(0, Math.round((it.total - txWasool) * 100) / 100);
+        } else {
+          txWasool = it.total;
+          txUdhar = 0;
+        }
+
+        activeShop.transactions.unshift({
+          id: "tx_" + Date.now() + "_" + i + "_" + Math.random().toString(36).slice(2, 6),
+          date: dateStr,
+          customerName: parsed.customerName,
+          saman: it.name,
+          mikdar: it.mikdar,
+          unit: it.unit,
+          rate: it.rate,
+          total: it.total,
+          wasool: txWasool,
+          udhar: txUdhar,
+          section: parsed.sectionName
+        });
+      }
+
+      if (!activeShop.customers.includes(parsed.customerName)) {
+        activeShop.customers.push(parsed.customerName);
+      }
+
+      const shops = getAllShops();
+      const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+      if (idx !== -1) {
+        shops[idx] = activeShop;
+        saveAllShops(shops);
+      }
+
+      renderDashboardData();
+      const grandTotal = parsed.items.reduce((acc, x) => acc + (x.total || 0), 0);
+      showToast(`${parsed.customerName}: ${parsed.items.length} cheezein "${parsed.sectionName}" mein add ho gayin | Kul: Rs.${grandTotal}`);
+    }
+
+    function parseFullKhataVoiceInput(text) {
+      const asciiDigits = normalizeDigitsToAscii(String(text || "")).trim();
+      if (!asciiDigits) return;
+      const rawEl = document.getElementById("rawVoiceSpokenText");
+      if (rawEl) rawEl.textContent = `"${asciiDigits}"`;
+
+      const parsed = parseMultiItemKhataSpeech(asciiDigits);
+      ensureSectionExistsAndSelect(parsed.sectionName, true);
+
+      const firstItem = (parsed.items && parsed.items[0]) || {
+        name: "Saman",
+        mikdar: 1,
+        unit: "Kilo (kg)",
+        rate: 0,
+        total: 0,
+        wasool: 0,
+        udhar: 0
+      };
+
+      const grandTotal = parsed.items.reduce((sum, x) => sum + (x.total || 0), 0);
+      const grandUdhar = parsed.items.reduce((sum, x) => sum + (x.udhar || 0), 0);
+      const grandWasool = parsed.wasool > 0 ? parsed.wasool : parsed.items.reduce((sum, x) => sum + (x.wasool || 0), 0);
+
+      document.getElementById("parseName").value = parsed.customerName;
+      document.getElementById("parseSaman").value = parsed.items.length > 1
+        ? parsed.items.map(x => `${x.name} (${x.mikdar} ${x.unit})`).join(", ")
+        : firstItem.name;
+      if (document.getElementById("parseWazan")) {
+        document.getElementById("parseWazan").value = formatWazanLabel(firstItem.mikdar, firstItem.unit);
+      }
+      document.getElementById("parseMikdar").value = firstItem.mikdar;
+      document.getElementById("parseUnit").value = firstItem.unit;
+      document.getElementById("parseRate").value = firstItem.rate || "";
+      document.getElementById("parseTotal").value = parsed.items.length > 1 ? grandTotal : firstItem.total;
+      document.getElementById("parseWasool").value = parsed.items.length > 1 ? grandWasool : firstItem.wasool;
+      document.getElementById("parseUdhar").value = parsed.items.length > 1 ? grandUdhar : firstItem.udhar;
+      document.getElementById("voiceErrorBanner").classList.add("hidden");
+
+      const summaryList = parsed.items.map(x => `${x.name}: ${x.mikdar} ${x.unit} @ Rs.${x.rate || 0} = Rs.${x.total}`).join(" | ");
+      showToast(`[${parsed.sectionName}] ${parsed.customerName} -> ${summaryList} (Kul: Rs.${grandTotal})`);
+    }
+
+function hideAllMainViews() {
+      document.getElementById("viewRegister").classList.add("hidden");
+      document.getElementById("viewReview").classList.add("hidden");
+      document.getElementById("viewDashboard").classList.add("hidden");
+      document.getElementById("viewOwner").classList.add("hidden");
+    }
+
+    function updateNetworkStatusBadge() {
+      const isOnline = navigator.onLine;
+      const textEl = document.getElementById("offlineBadgeText");
+      const dot = document.getElementById("offlineDot");
+      if (textEl && dot) {
+        if (isOnline) {
+          textEl.textContent = "OFFLINE READY (Local)";
+          dot.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse";
+        } else {
+          textEl.textContent = "100% OFFLINE MODE";
+          dot.className = "w-2 h-2 rounded-full bg-amber-400 inline-block";
+        }
+      }
+    }
+
+    function initApp() {
+      updateNetworkStatusBadge();
+      if (isOwnerAuthenticated && !document.getElementById("viewOwner").classList.contains("hidden")) {
+        renderOwnerShops();
+        return;
+      }
+
+      hideAllMainViews();
+      const mob = getActiveMobile();
+      const shops = getAllShops();
+      activeShop = shops.find(s => normalizePhone(s.mobile) === mob) || null;
+
+      if (!activeShop) {
+        document.getElementById("viewRegister").classList.remove("hidden");
+        document.getElementById("appHeaderSubtitle").textContent = "Dukandar Registration & Login";
+      } else if (activeShop.status === "active") {
+        document.getElementById("viewDashboard").classList.remove("hidden");
+        document.getElementById("appHeaderSubtitle").textContent = "100% Offline Voice Khata System";
+        renderDashboardData();
+      } else {
+        document.getElementById("viewReview").classList.remove("hidden");
+        document.getElementById("appHeaderSubtitle").textContent = "Status: Under Review";
+        document.getElementById("reviewShopSummary").textContent =
+          `${activeShop.shopName} (${activeShop.mobile}) — Rs. 2,000 JazzCash (03457267940) bhej kar raseed WhatsApp karein.`;
+      }
+    }
+
+    function handleRegistrationSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("regName").value.trim();
+      const mobile = normalizePhone(document.getElementById("regMobile").value.trim());
+      const shopName = document.getElementById("regShopName").value.trim();
+      if (!name || !mobile || !shopName) return;
+
+      const shops = getAllShops();
+      let shop = shops.find(s => normalizePhone(s.mobile) === mobile);
+      const actKey = generateActivationKey(mobile);
+
+      if (!shop) {
+        shop = {
+          id: "shop_" + Date.now(),
+          ownerName: name,
+          mobile: mobile,
+          shopName: shopName,
+          status: "pending",
+          activationKey: actKey,
+          advancePaid: false,
+          monthsPaidCount: 0,
+          regDate: new Date().toISOString().split("T")[0],
+          nextDueDate: "",
+          activeSection: "Rozana Khata",
+          sections: ["Rozana Khata", "Udhar List", "Cash Sale"],
+          customers: ["Kasim", "Ali", "Bilal"],
+          transactions: []
+        };
+        shops.unshift(shop);
+        saveAllShops(shops);
+      }
+
+      setActiveMobile(mobile);
+      const waText = `Assalam-o-Alaikum Owner!\nName: ${name}\nMobile: ${mobile}\nDukan: ${shopName}\nPlease approve my DukanKhata app. Activation Key: ${actKey}`;
+      copyText(waText, "Details copied for WhatsApp!");
+      window.open(`https://api.whatsapp.com/send?phone=923457267940&text=${encodeURIComponent(waText)}`, "_blank");
+      initApp();
+    }
+
+    function handleLoginCheck() {
+      const mob = normalizePhone(document.getElementById("loginMobileInput").value.trim());
+      if (!mob) {
+        showToast("Mobile number likhein!", "error");
+        return;
+      }
+      const shop = getAllShops().find(s => normalizePhone(s.mobile) === mob);
+      if (!shop) {
+        showToast("Yeh number registered nahi hai.", "error");
+        return;
+      }
+      setActiveMobile(shop.mobile);
+      showToast(`Welcome ${shop.ownerName}!`);
+      initApp();
+    }
+
+    function sendWhatsAppReceipt() {
+      if (!activeShop) return;
+      const actKey = activeShop.activationKey || generateActivationKey(activeShop.mobile);
+      const waText = `Assalam-o-Alaikum Owner!\nMain ne JazzCash (03457267940) par Rs. 2,000 send kar diye hain.\nDukan: ${activeShop.shopName}\nMobile: ${activeShop.mobile}\nKey: ${actKey}`;
+      copyText(waText, "Receipt text copied!");
+      window.open(`https://api.whatsapp.com/send?phone=923457267940&text=${encodeURIComponent(waText)}`, "_blank");
+    }
+
+    function unlockWithActivationKey() {
+      const inputKey = (document.getElementById("manualActivationKeyInput").value || "").trim().toUpperCase();
+      if (!inputKey || !activeShop) {
+        showToast("Activation Key likhein!", "error");
+        return;
+      }
+      const expectedKey = (activeShop.activationKey || generateActivationKey(activeShop.mobile)).toUpperCase();
+      if (inputKey === expectedKey) {
+        const shops = getAllShops();
+        const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+        if (idx !== -1) {
+          const nextMonth = new Date();
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          shops[idx].status = "active";
+          shops[idx].advancePaid = true;
+          shops[idx].monthsPaidCount = Math.max(1, shops[idx].monthsPaidCount || 0);
+          shops[idx].nextDueDate = nextMonth.toISOString().split("T")[0];
+          saveAllShops(shops);
+        }
+        showToast("🎉 App Activated & Unlocked!");
+        initApp();
+      } else {
+        showToast("Galat Activation Key!", "error");
+      }
+    }
+
+    function checkCurrentApprovalStatus(silent = false) {
+      const mob = getActiveMobile();
+      if (!mob) return;
+      const shop = getAllShops().find(s => normalizePhone(s.mobile) === mob);
+      if (shop && shop.status === "active") {
+        activeShop = shop;
+        initApp();
+        if (!silent) showToast("🎉 Aap ki app WELCOME / Unlock ho gayi hai!");
+      } else if (!silent) {
+        showToast("Abhi Under Review hai. Owner se Welcome karwayein.", "error");
+      }
+    }
+
+    function switchUserAccount() {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      activeShop = null;
+      initApp();
+    }
+
+    function openOwnerMode() {
+      if (isOwnerAuthenticated) {
+        showOwnerDashboard();
+        return;
+      }
+      document.getElementById("modalOwnerPassInput").value = "";
+      document.getElementById("modalPassError").classList.add("hidden");
+      document.getElementById("ownerPassModal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("modalOwnerPassInput").focus(), 50);
+    }
+
+    function closeOwnerPassModal() {
+      document.getElementById("ownerPassModal").classList.add("hidden");
+    }
+
+    function verifyOwnerModalPassword(e) {
+      e.preventDefault();
+      const val = document.getElementById("modalOwnerPassInput").value.trim();
+      if (val === OWNER_PASS) {
+        isOwnerAuthenticated = true;
+        document.getElementById("modalOwnerPassInput").value = "";
+        closeOwnerPassModal();
+        showToast("Owner Control Panel Unlocked!");
+        showOwnerDashboard();
+      } else {
+        document.getElementById("modalPassError").classList.remove("hidden");
+        showToast("Galat Password!", "error");
+      }
+    }
+
+    function showOwnerDashboard() {
+      hideAllMainViews();
+      document.getElementById("viewOwner").classList.remove("hidden");
+      document.getElementById("appHeaderSubtitle").textContent = "Owner Master Control Panel";
+      renderOwnerShops();
+    }
+
+    function exitOwnerMode() {
+      isOwnerAuthenticated = false;
+      initApp();
+    }
+
+    function handleOwnerAddShop(e) {
+      e.preventDefault();
+      const ownerName = document.getElementById("addOwnerName").value.trim();
+      const mobile = normalizePhone(document.getElementById("addOwnerMobile").value.trim());
+      const shopName = document.getElementById("addShopTitle").value.trim();
+      const autoWelcome = document.getElementById("addAutoWelcome").checked;
+      if (!ownerName || !mobile || !shopName) return;
+
+      const shops = getAllShops();
+      const existingIdx = shops.findIndex(s => normalizePhone(s.mobile) === mobile);
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      const dueStr = nextMonth.toISOString().split("T")[0];
+      const actKey = generateActivationKey(mobile);
+
+      if (existingIdx !== -1) {
+        shops[existingIdx].ownerName = ownerName;
+        shops[existingIdx].mobile = mobile;
+        shops[existingIdx].shopName = shopName;
+        shops[existingIdx].activationKey = actKey;
+        if (autoWelcome) {
+          shops[existingIdx].status = "active";
+          shops[existingIdx].advancePaid = true;
+          shops[existingIdx].monthsPaidCount = Math.max(1, shops[existingIdx].monthsPaidCount || 0);
+          shops[existingIdx].nextDueDate = dueStr;
+        }
+        saveAllShops(shops);
+        showToast(`'${shopName}' update ho gayi! Key: ${actKey}`);
+      } else {
+        shops.unshift({
+          id: "shop_" + Date.now(),
+          ownerName,
+          mobile,
+          shopName,
+          status: autoWelcome ? "active" : "pending",
+          activationKey: actKey,
+          advancePaid: autoWelcome,
+          monthsPaidCount: autoWelcome ? 1 : 0,
+          regDate: new Date().toISOString().split("T")[0],
+          nextDueDate: dueStr,
+          activeSection: "Rozana Khata",
+          sections: ["Rozana Khata", "Udhar List", "Cash Sale"],
+          customers: ["Kasim", "Ali"],
+          transactions: []
+        });
+        saveAllShops(shops);
+        showToast(`'${shopName}' add ho gayi! Key: ${actKey}`);
+      }
+
+      document.getElementById("addOwnerName").value = "";
+      document.getElementById("addOwnerMobile").value = "";
+      document.getElementById("addShopTitle").value = "";
+      document.getElementById("addAutoWelcome").checked = true;
+      renderOwnerShops();
+    }
+
+    function welcomeShopkeeper(mobile) {
+      const cleanMob = normalizePhone(mobile);
+      const shops = getAllShops();
+      const idx = shops.findIndex(s => normalizePhone(s.mobile) === cleanMob);
+      if (idx === -1) return;
+
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      shops[idx].status = "active";
+      shops[idx].advancePaid = true;
+      shops[idx].monthsPaidCount = Math.max(1, shops[idx].monthsPaidCount || 0);
+      shops[idx].nextDueDate = nextMonth.toISOString().split("T")[0];
+      saveAllShops(shops);
+      renderOwnerShops();
+      showToast(`🎉 ${shops[idx].shopName} ko WELCOME (Unlocked) kar diya gaya!`);
+    }
+
+    function addMonthlyFee(mobile) {
+      const cleanMob = normalizePhone(mobile);
+      const shops = getAllShops();
+      const idx = shops.findIndex(s => normalizePhone(s.mobile) === cleanMob);
+      if (idx === -1) return;
+
+      const due = shops[idx].nextDueDate ? new Date(shops[idx].nextDueDate) : new Date();
+      due.setMonth(due.getMonth() + 1);
+      shops[idx].status = "active";
+      shops[idx].monthsPaidCount = (shops[idx].monthsPaidCount || 1) + 1;
+      shops[idx].nextDueDate = due.toISOString().split("T")[0];
+      saveAllShops(shops);
+      renderOwnerShops();
+      showToast(`Rs. 1,000 Mahana Fee shamil (${shops[idx].shopName})`);
+    }
+
+    function toggleBlockShop(mobile) {
+      const cleanMob = normalizePhone(mobile);
+      const shops = getAllShops();
+      const idx = shops.findIndex(s => normalizePhone(s.mobile) === cleanMob);
+      if (idx === -1) return;
+
+      shops[idx].status = shops[idx].status === "suspended" ? "active" : "suspended";
+      saveAllShops(shops);
+      renderOwnerShops();
+      showToast(shops[idx].status === "suspended" ? "Dukan Block kar di gayi." : "Dukan Active kar di gayi.");
+    }
+
+    function deleteShopItem(mobile) {
+      const cleanMob = normalizePhone(mobile);
+      const shops = getAllShops().filter(s => normalizePhone(s.mobile) !== cleanMob);
+      saveAllShops(shops);
+      renderOwnerShops();
+      showToast("Dukan delete kar di gayi.");
+    }
+
+    function setShopFilter(filter) {
+      currentShopFilter = filter;
+      ["all", "pending", "active", "suspended"].forEach(f => {
+        const btn = document.getElementById("filter" + f.charAt(0).toUpperCase() + f.slice(1));
+        if (btn) {
+          btn.className = f === filter
+            ? "px-3 py-1.5 rounded-xl font-bold bg-amber-500 text-slate-950"
+            : "px-3 py-1.5 rounded-xl font-bold bg-slate-950 text-slate-300 border border-slate-800";
+        }
+      });
+      renderOwnerShops();
+    }
+
+    function renderOwnerShops() {
+      const shops = getAllShops();
+      const query = (document.getElementById("ownerSearchInput") ? document.getElementById("ownerSearchInput").value : "").toLowerCase().trim();
+
+      const totalCount = shops.length;
+      const activeCount = shops.filter(s => s.status === "active").length;
+      const pendingCount = shops.filter(s => s.status === "pending").length;
+      const totalRevenue = shops.reduce((sum, s) => {
+        const adv = s.advancePaid ? 2000 : 0;
+        const extraMonths = Math.max(0, (s.monthsPaidCount || 1) - 1) * 1000;
+        return sum + adv + extraMonths;
+      }, 0);
+
+      document.getElementById("statTotalShops").textContent = totalCount;
+      document.getElementById("statActiveShops").textContent = activeCount;
+      document.getElementById("statPendingShops").textContent = pendingCount;
+      document.getElementById("statTotalRevenue").textContent = `Rs. ${totalRevenue.toLocaleString()}`;
+
+      let filtered = shops;
+      if (currentShopFilter !== "all") {
+        filtered = filtered.filter(s => s.status === currentShopFilter);
+      }
+      if (query) {
+        filtered = filtered.filter(s =>
+          (s.shopName || "").toLowerCase().includes(query) ||
+          (s.ownerName || "").toLowerCase().includes(query) ||
+          (s.mobile || "").includes(query)
+        );
+      }
+
+      const container = document.getElementById("shopsListContainer");
+      container.innerHTML = "";
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center text-slate-400 text-xs">Koi dukandar nahi mila. Upar <strong>Add Shop</strong> se naya dukandar add karein.</div>`;
+        return;
+      }
+
+      filtered.forEach(shop => {
+        let badgeHtml = `<span class="bg-amber-950 text-amber-400 border border-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">UNDER REVIEW</span>`;
+        if (shop.status === "active") {
+          badgeHtml = `<span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">WELCOMED (ACTIVE)</span>`;
+        } else if (shop.status === "suspended") {
+          badgeHtml = `<span class="bg-rose-950 text-rose-400 border border-rose-800 text-[10px] px-2 py-0.5 rounded-full font-bold">BLOCKED</span>`;
+        }
+
+        const actKey = shop.activationKey || generateActivationKey(shop.mobile);
+
+        const welcomeBtnHtml = shop.status !== "active"
+          ? `<button onclick="welcomeShopkeeper('${shop.mobile}')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs transition shadow"><i class="fa-solid fa-check"></i> WELCOME</button>`
+          : `<button onclick="addMonthlyFee('${shop.mobile}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition">+ Rs. 1,000 Mahana Fee</button>`;
+
+        const blockBtnLabel = shop.status === "suspended" ? "Unblock" : "Block / Suspend";
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 shadow";
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <h4 class="font-black text-white text-sm">${shop.shopName}</h4>
+            ${badgeHtml}
+          </div>
+          <div class="text-xs text-slate-400 flex flex-wrap gap-x-3 gap-y-1">
+            <span>👤 ${shop.ownerName}</span>
+            <span>📱 ${shop.mobile}</span>
+            <span class="font-mono text-amber-300">🔑 Key: ${actKey}</span>
+            <span>📅 Reg: ${shop.regDate || "-"}</span>
+            <span>💳 Next Fee: ${shop.nextDueDate || "-"}</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              ${welcomeBtnHtml}
+              <button onclick="toggleBlockShop('${shop.mobile}')" class="bg-slate-900 hover:bg-slate-800 text-rose-400 border border-rose-900/60 px-2.5 py-1.5 rounded-xl text-xs font-bold">${blockBtnLabel}</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="copyText('${actKey}', 'Activation Key copied!')" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-mono">
+                <i class="fa-regular fa-copy"></i> Key
+              </button>
+              <a href="https://api.whatsapp.com/send?phone=92${normalizePhone(shop.mobile).slice(1)}&text=${encodeURIComponent('Assalam-o-Alaikum ' + shop.ownerName + '! Aap ki DukanKhata app unlock ho gayi hai. Activation Key: ' + actKey)}" target="_blank" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+              </a>
+              <button onclick="deleteShopItem('${shop.mobile}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // MULTI-LANGUAGE VOICE & KEYBOARD PARSER LOGIC
+    function openOfflineGuideModal() {
+      document.getElementById("offlineGuideModal").classList.remove("hidden");
+    }
+
+    function closeOfflineGuideModal() {
+      document.getElementById("offlineGuideModal").classList.add("hidden");
+    }
+
+    function updateVoiceLangBadge() {
+      const sel = document.getElementById("voiceLangSelect");
+      if (sel) {
+        applyAllLanguagesOption(sel.value, false);
+      }
+    }
+
+    function showVoiceError(msg) {
+      const banner = document.getElementById("voiceErrorBanner");
+      const textEl = document.getElementById("voiceErrorText");
+      if (banner && textEl) {
+        textEl.textContent = msg;
+        banner.classList.remove("hidden");
+      }
+      showToast(msg, "error");
+    }
+
+    function processVoiceInput(text) {
+      return parseFullKhataVoiceInput(text);
+    }
+
+    let offlineMediaRecorder = null;
+    let offlineMediaStream = null;
+    let offlineAudioChunks = [];
+    let offlineListenTimer = null;
+    let lastRecordedAudioUrl = null;
+    let audioContext = null;
+    let analyserNode = null;
+    let micLevelInterval = null;
+    let capturedVoiceChunks = [];
+
+    function resolveSpeechLangCode(rawLang) {
+      const code = String(rawLang || "ur-PK");
+      const map = {
+        "ur-Latn": "ur-PK",
+        "skr-PK": "ur-PK",
+        "ks-IN": "ur-PK",
+        "bal-PK": "fa-IR",
+        "pa-Guru-IN": "pa-IN"
+      };
+      return map[code] || code;
+    }
+
+    function setMicRecordingVisuals(active, labelText) {
+      const btn = document.getElementById("micButton");
+      const iconEl = document.getElementById("micIcon");
+      const statusEl = document.getElementById("micStatusText");
+      const listenEl = document.getElementById("micListeningText");
+      const listenLbl = document.getElementById("micListeningLabel");
+
+      if (active) {
+        isListening = true;
+        document.getElementById("voiceErrorBanner").classList.add("hidden");
+        if (btn) {
+          btn.classList.remove("bg-emerald-500", "hover:bg-emerald-600", "text-slate-950");
+          btn.classList.add("bg-rose-600", "hover:bg-rose-700", "text-white");
+        }
+        if (iconEl) iconEl.className = "fa-solid fa-stop text-3xl animate-pulse";
+        if (statusEl) statusEl.textContent = "STOP";
+        if (listenLbl && labelText) listenLbl.textContent = labelText;
+        if (listenEl) listenEl.classList.remove("hidden");
+      } else {
+        isListening = false;
+        if (btn) {
+          btn.classList.remove("bg-rose-600", "hover:bg-rose-700", "text-white");
+          btn.classList.add("bg-emerald-500", "hover:bg-emerald-600", "text-slate-950");
+        }
+        if (iconEl) iconEl.className = "fa-solid fa-microphone text-3xl";
+        if (statusEl) {
+          const lbl = typeof getLocalizedUiLabels === "function" ? getLocalizedUiLabels(selectedVoiceLang) : null;
+          statusEl.textContent = (lbl && lbl.bolein) || "BOLEIN";
+        }
+        if (listenEl) listenEl.classList.add("hidden");
+      }
+    }
+
+    let lastSpokenVoiceText = "";
+    let manualStopRequested = false;
+    let speechHasReceivedText = false;
+    let speechAttemptIndex = 0;
+    let speechFallbackLangs = [];
+    let autoSavedCurrentUtterance = false;
+
+    function isContentOrFileProtocol() {
+      return /^(content:|file:)/i.test(window.location.protocol || "");
+    }
+
+    function openAppInExternalBrowser() {
+      const href = window.location.href || "";
+      if (/^https?:\/\//i.test(href)) {
+        window.open(href, "_blank", "noopener,noreferrer");
+        return;
+      }
+      if (/^content:\/\//i.test(href)) {
+        const withoutScheme = href.replace(/^content:\/\//i, "");
+        const intentUrl = `intent://${withoutScheme}#Intent;scheme=content;action=android.intent.action.VIEW;type=text/html;package=com.android.chrome;end`;
+        try {
+          window.location.href = intentUrl;
+          return;
+        } catch (e) {}
+      }
+      showToast("File ko Chrome browser mein 'Open with Chrome' se kholein.");
+    }
+
+    function ensureExternalBrowserHelperVisible() {
+      const errBanner = document.getElementById("voiceErrorBanner");
+      const errText = document.getElementById("voiceErrorText");
+      if (!errBanner || !errText) return;
+      if (isContentOrFileProtocol()) {
+        errBanner.classList.remove("hidden");
+        if (!errBanner.querySelector("[data-open-chrome-btn]")) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.setAttribute("data-open-chrome-btn", "1");
+          btn.className = "ml-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2.5 py-1 rounded-lg text-[11px] shrink-0";
+          btn.textContent = "Chrome Mein Kholein";
+          btn.onclick = openAppInExternalBrowser;
+          errBanner.appendChild(btn);
+        }
+      }
+    }
+
+    function buildSpeechLanguageChain(primaryLang) {
+      const resolved = resolveSpeechLangCode(primaryLang);
+      const chain = [resolved];
+      if (resolved.startsWith("ur")) {
+        chain.push("ur-IN", "hi-IN", "en-IN", "");
+      } else if (resolved.startsWith("hi")) {
+        chain.push("en-IN", "ur-PK", "");
+      } else if (resolved.startsWith("pa") || resolved.startsWith("sd") || resolved.startsWith("ps")) {
+        chain.push("ur-PK", "hi-IN", "en-US", "");
+      } else {
+        chain.push("en-US", "");
+      }
+      return Array.from(new Set(chain));
+    }
+
+
+    function stopAllRecording() {
+      manualStopRequested = true;
+      if (offlineListenTimer) {
+        clearTimeout(offlineListenTimer);
+        offlineListenTimer = null;
+      }
+      if (micLevelInterval) {
+        clearInterval(micLevelInterval);
+        micLevelInterval = null;
+      }
+      if (recognition) {
+        try { recognition.onend = null; } catch (e) {}
+        try { recognition.onerror = null; } catch (e) {}
+        try { recognition.stop(); } catch (e) {}
+        recognition = null;
+      }
+      if (offlineMediaRecorder && offlineMediaRecorder.state !== "inactive") {
+        try { offlineMediaRecorder.stop(); } catch (e) {}
+      }
+      if (offlineMediaStream) {
+        try { offlineMediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+        offlineMediaStream = null;
+      }
+      if (audioContext) {
+        try { audioContext.close(); } catch (e) {}
+        audioContext = null;
+      }
+      setMicRecordingVisuals(false);
+
+      const liveBox = document.getElementById("liveInterimTranscript");
+      if (lastSpokenVoiceText && lastSpokenVoiceText.trim()) {
+        const finalClean = lastSpokenVoiceText.trim();
+        if (liveBox) {
+          liveBox.textContent = `✅ "${finalClean}"`;
+          liveBox.classList.remove("hidden");
+        }
+        processVoiceInput(finalClean);
+        if (!autoSavedCurrentUtterance) {
+          autoSavedCurrentUtterance = true;
+          autoAddParsedVoiceToKhataIfReady(finalClean);
+        }
+      } else if (!speechHasReceivedText && liveBox) {
+        liveBox.textContent = "⚠️ Speech engine se text nahi mila. Mic permission Allow karein ya dubara BOLEIN daba kar bolein.";
+        liveBox.classList.remove("hidden");
+        ensureExternalBrowserHelperVisible();
+      }
+    }
+
+    function startAudioLevelMeter(stream) {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioContext = new Ctx();
+        const source = audioContext.createMediaStreamSource(stream);
+        analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 256;
+        source.connect(analyserNode);
+
+        const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+        const liveBox = document.getElementById("liveInterimTranscript");
+        let peakDetected = false;
+
+        micLevelInterval = setInterval(() => {
+          if (!isListening || !analyserNode) return;
+          analyserNode.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          const avg = sum / dataArray.length;
+          if (avg > 10) peakDetected = true;
+
+          if (liveBox && !speechHasReceivedText) {
+            const bars = "▮".repeat(Math.min(12, Math.max(1, Math.round(avg / 7))));
+            liveBox.textContent = peakDetected
+              ? `🎙️ Mic Awaz Sun Raha Hai ${bars}`
+              : `🎙️ Mic Active ${bars} — Abhi bolein...`;
+            liveBox.classList.remove("hidden");
+          }
+        }, 180);
+      } catch (e) {}
+    }
+
+    function startDirectOfflineRecorder(langCode) {
+      const getMic =
+        (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+          ? (c) => navigator.mediaDevices.getUserMedia(c)
+          : (navigator.getUserMedia || navigator.webkitGetUserMedia)
+            ? (c) => new Promise((res, rej) => (navigator.getUserMedia || navigator.webkitGetUserMedia).call(navigator, c, res, rej))
+            : null;
+
+      if (!getMic) {
+        setMicRecordingVisuals(true, `Mic Ready (${langCode}) — Bolein`);
+        ensureExternalBrowserHelperVisible();
+        return;
+      }
+
+      getMic({ audio: true }).then((stream) => {
+        offlineMediaStream = stream;
+        offlineAudioChunks = [];
+        setMicRecordingVisuals(true, `Mic Active (${langCode})... Bolein`);
+        startAudioLevelMeter(stream);
+
+        try {
+          if (typeof MediaRecorder !== "undefined") {
+            offlineMediaRecorder = new MediaRecorder(stream);
+            offlineMediaRecorder.ondataavailable = (ev) => {
+              if (ev.data && ev.data.size > 0) offlineAudioChunks.push(ev.data);
+            };
+            offlineMediaRecorder.onstop = () => {
+              if (offlineMediaStream) {
+                offlineMediaStream.getTracks().forEach(t => t.stop());
+                offlineMediaStream = null;
+              }
+              if (offlineAudioChunks.length > 0) {
+                const mime = offlineMediaRecorder.mimeType || "audio/webm";
+                const blob = new Blob(offlineAudioChunks, { type: mime });
+                if (lastRecordedAudioUrl) URL.revokeObjectURL(lastRecordedAudioUrl);
+                lastRecordedAudioUrl = URL.createObjectURL(blob);
+                const player = document.getElementById("recordedAudioPlayer");
+                const wrap = document.getElementById("recordedAudioPlayerWrap");
+                if (player && wrap) {
+                  player.src = lastRecordedAudioUrl;
+                  wrap.classList.remove("hidden");
+                }
+              }
+              setMicRecordingVisuals(false);
+            };
+            offlineMediaRecorder.start();
+            offlineListenTimer = setTimeout(() => {
+              stopAllRecording();
+            }, 25000);
+          }
+        } catch (recErr) {}
+      }).catch(() => {
+        ensureExternalBrowserHelperVisible();
+        if (isContentOrFileProtocol()) {
+          setMicRecordingVisuals(true, `Mic Active (${langCode}) — Bolein (STOP dabayein)`);
+          offlineListenTimer = setTimeout(() => {
+            stopAllRecording();
+          }, 20000);
+        } else {
+          setMicRecordingVisuals(false);
+          showVoiceError("Browser/App settings se Microphone permission Allow karein.");
+        }
+      });
+    }
+
+    function launchSpeechRecognizer(liveBox) {
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Speech) {
+        startDirectOfflineRecorder(speechFallbackLangs[0] || "ur-PK");
+        return;
+      }
+
+      const activeLang = speechFallbackLangs[Math.min(speechAttemptIndex, speechFallbackLangs.length - 1)] || "";
+      const langDisplay = activeLang || "Auto-Detect";
+
+      try {
+        recognition = new Speech();
+        if (activeLang) {
+          recognition.lang = activeLang;
+        }
+        // Single-utterance mode (continuous=false) is far more reliable across Chrome, Edge, Android WebView & file://
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 5;
+
+        let utteranceFinal = "";
+
+        recognition.onstart = () => {
+          setMicRecordingVisuals(true, `Mic Sun Raha Hai (${langDisplay}) — Bolein!`);
+          if (liveBox && !speechHasReceivedText) {
+            liveBox.textContent = `🎙️ Mic Sun Raha Hai (${langDisplay}) — Abhi bolein!`;
+            liveBox.classList.remove("hidden");
+          }
+        };
+
+        recognition.onresult = (event) => {
+          let interim = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const res = event.results[i];
+            const chunk = (res && res[0] && res[0].transcript) ? res[0].transcript : "";
+            if (!chunk) continue;
+            if (res.isFinal) {
+              utteranceFinal += chunk + " ";
+            } else {
+              interim += chunk;
+            }
+          }
+
+          const combined = (lastSpokenVoiceText + " " + utteranceFinal + interim).trim();
+          if (combined) {
+            speechHasReceivedText = true;
+            if (liveBox) {
+              liveBox.textContent = `🗣️ "${combined}"`;
+              liveBox.classList.remove("hidden");
+            }
+            processVoiceInput(combined);
+          }
+
+          if (utteranceFinal.trim()) {
+            lastSpokenVoiceText = (lastSpokenVoiceText + " " + utteranceFinal).trim();
+            utteranceFinal = "";
+          }
+        };
+
+        recognition.onerror = (ev) => {
+          const errCode = (ev && ev.error) || "unknown";
+          recognition = null;
+
+          if (manualStopRequested || !isListening) return;
+
+          if (errCode === "not-allowed" || errCode === "service-not-allowed") {
+            setMicRecordingVisuals(false);
+            showVoiceError("Microphone permission blocked hai — address bar ke lock/mic icon se Allow karein.");
+            ensureExternalBrowserHelperVisible();
+            return;
+          }
+
+          // If language is unsupported or network/audio error happens, step to next fallback language automatically
+          if (!speechHasReceivedText && speechAttemptIndex + 1 < speechFallbackLangs.length) {
+            speechAttemptIndex++;
+            if (liveBox) {
+              const nextLbl = speechFallbackLangs[speechAttemptIndex] || "Auto-Detect";
+              liveBox.textContent = `🔄 Mode switch (${errCode}) -> ${nextLbl} par sun raha hai... Bolein!`;
+              liveBox.classList.remove("hidden");
+            }
+            setTimeout(() => {
+              if (isListening && !manualStopRequested) {
+                launchSpeechRecognizer(liveBox);
+              }
+            }, 150);
+            return;
+          }
+
+          if (!speechHasReceivedText) {
+            if (liveBox) {
+              liveBox.textContent = `⚠️ Speech error (${errCode}) — Audio recorder mode active...`;
+              liveBox.classList.remove("hidden");
+            }
+            startDirectOfflineRecorder(langDisplay);
+            ensureExternalBrowserHelperVisible();
+          }
+        };
+
+        recognition.onend = () => {
+          recognition = null;
+          if (isListening && !manualStopRequested) {
+            // Keep listening seamlessly until user taps STOP
+            setTimeout(() => {
+              if (isListening && !manualStopRequested) {
+                launchSpeechRecognizer(liveBox);
+              }
+            }, 120);
+          } else {
+            setMicRecordingVisuals(false);
+          }
+        };
+
+        recognition.start();
+      } catch (e) {
+        recognition = null;
+        startDirectOfflineRecorder(langDisplay);
+      }
+    }
+
+    function toggleVoiceListening() {
+      if (isListening) {
+        stopAllRecording();
+        return;
+      }
+
+      manualStopRequested = false;
+      lastSpokenVoiceText = "";
+      speechHasReceivedText = false;
+      autoSavedCurrentUtterance = false;
+      speechAttemptIndex = 0;
+
+      const langSel = document.getElementById("voiceLangSelect");
+      const allSel = document.getElementById("allLanguagesSelect");
+      const rawLang = (langSel && langSel.value) || (allSel && allSel.value) || selectedVoiceLang || "ur-PK";
+      speechFallbackLangs = buildSpeechLanguageChain(rawLang);
+
+      const liveBox = document.getElementById("liveInterimTranscript");
+      if (liveBox) {
+        liveBox.textContent = `🎙️ Mic On (${speechFallbackLangs[0]}) — Abhi bolein!`;
+        liveBox.classList.remove("hidden");
+      }
+
+      setMicRecordingVisuals(true, `Mic Active (${speechFallbackLangs[0]}) — Abhi bolein!`);
+      launchSpeechRecognizer(liveBox);
+    }
+
+    function saveVoiceEntryToLedger(isAuto = false) {
+      if (!activeShop) return;
+      const name = document.getElementById("parseName").value.trim();
+      const saman = document.getElementById("parseSaman").value.trim();
+      const mikdarVal = document.getElementById("parseMikdar").value.trim();
+      const unitVal = document.getElementById("parseUnit").value || "Kilo (kg)";
+      const rate = parseFloat(document.getElementById("parseRate").value) || 0;
+      const wasool = parseFloat(document.getElementById("parseWasool").value) || 0;
+      const udhar = parseFloat(document.getElementById("parseUdhar").value) || 0;
+      const total = parseFloat(document.getElementById("parseTotal").value) || (wasool + udhar);
+      const section = document.getElementById("parseSectionSelect").value || activeShop.activeSection;
+
+      if (!name) {
+        showToast("Name zaroori hai!", "error");
+        return;
+      }
+
+      activeShop.transactions = activeShop.transactions || [];
+      activeShop.transactions.unshift({
+        id: "tx_" + Date.now(),
+        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        customerName: name,
+        saman: saman || "Saman",
+        mikdar: mikdarVal || "1",
+        unit: unitVal,
+        rate,
+        total,
+        wasool,
+        udhar,
+        section
+      });
+
+      if (!activeShop.customers.includes(name)) {
+        activeShop.customers.push(name);
+      }
+
+      const shops = getAllShops();
+      const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+      if (idx !== -1) {
+        shops[idx] = activeShop;
+        saveAllShops(shops);
+      }
+
+      showToast("Khata save ho gaya!");
+      renderDashboardData();
+    }
+
+    function renderDashboardData() {
+      if (!activeShop) return;
+      document.getElementById("dashShopTitle").textContent = activeShop.shopName;
+      document.getElementById("dashShopOwner").textContent = `${activeShop.ownerName} (${activeShop.mobile})`;
+
+      const tabContainer = document.getElementById("sectionsTabContainer");
+      const secSelect = document.getElementById("parseSectionSelect");
+      tabContainer.innerHTML = "";
+      secSelect.innerHTML = "";
+
+      (activeShop.sections || ["Rozana Khata"]).forEach(sec => {
+        const isActive = sec === activeShop.activeSection;
+        const btn = document.createElement("button");
+        btn.className = isActive
+          ? "px-3.5 py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 whitespace-nowrap shadow"
+          : "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800 whitespace-nowrap hover:bg-slate-800 transition";
+        btn.textContent = sec;
+        btn.onclick = () => {
+          activeShop.activeSection = sec;
+          const shops = getAllShops();
+          const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+          if (idx !== -1) {
+            shops[idx] = activeShop;
+            saveAllShops(shops);
+          }
+          renderDashboardData();
+        };
+        tabContainer.appendChild(btn);
+
+        const opt = document.createElement("option");
+        opt.value = sec;
+        opt.textContent = sec;
+        if (isActive) opt.selected = true;
+        secSelect.appendChild(opt);
+      });
+
+      renderLedger();
+    }
+
+    function renderLedger() {
+      if (!activeShop) return;
+      const query = (document.getElementById("ledgerSearchInput").value || "").toLowerCase();
+      const tbody = document.getElementById("ledgerTableBody");
+      tbody.innerHTML = "";
+
+      let list = (activeShop.transactions || []).filter(t => t.section === activeShop.activeSection);
+      if (query) {
+        list = list.filter(t =>
+          t.customerName.toLowerCase().includes(query) ||
+          t.saman.toLowerCase().includes(query)
+        );
+      }
+
+      document.getElementById("recordCountTag").textContent = `${list.length} Entries`;
+
+      let totalBillSum = 0;
+      let totalUdhar = 0;
+      let totalWasool = 0;
+
+      list.forEach(tx => {
+        const txWasool = Number(tx.wasool || 0);
+        const txUdhar = Number(tx.udhar || 0);
+        const txTotal = Number(tx.total !== undefined ? tx.total : (txWasool + txUdhar));
+        const txRate = Number(tx.rate || 0);
+        const qtyDisplay = tx.unit ? `${tx.mikdar} ${tx.unit}` : `${tx.mikdar}`;
+
+        totalBillSum += txTotal;
+        totalUdhar += txUdhar;
+        totalWasool += txWasool;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/50 border-b border-slate-800/40";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${tx.customerName}</td>
+          <td class="p-3 text-slate-300">${tx.saman}</td>
+          <td class="p-3 text-amber-300 font-mono text-xs">${qtyDisplay}</td>
+          <td class="p-3 text-right text-slate-400 font-mono text-xs">${txRate > 0 ? "Rs." + txRate : "-"}</td>
+          <td class="p-3 text-right font-bold text-sky-400">Rs.${txTotal}</td>
+          <td class="p-3 text-right font-bold text-emerald-400">Rs.${txWasool}</td>
+          <td class="p-3 text-right font-bold text-rose-400">Rs.${txUdhar}</td>
+          <td class="p-3 text-center">
+            <button onclick="deleteTx('${tx.id}')" class="text-slate-500 hover:text-rose-400 p-1.5 transition">
+              <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500 text-xs sm:text-sm">Is section mein abhi koi entry nahi hai. Baayein taraf (Left side) bol kar ya likh kar entry daraj karein.</td></tr>`;
+      }
+
+      document.getElementById("kpiNet").textContent = `Rs. ${totalBillSum.toLocaleString()}`;
+      document.getElementById("kpiWasool").textContent = `Rs. ${totalWasool.toLocaleString()}`;
+      document.getElementById("kpiUdhar").textContent = `Rs. ${totalUdhar.toLocaleString()}`;
+    }
+
+    function deleteTx(id) {
+      if (!activeShop) return;
+      activeShop.transactions = activeShop.transactions.filter(t => t.id !== id);
+      const shops = getAllShops();
+      const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+      if (idx !== -1) {
+        shops[idx] = activeShop;
+        saveAllShops(shops);
+      }
+      showToast("Entry delete kar di gayi.");
+      renderDashboardData();
+    }
+
+    function openCustomInputModal(title, placeholder, onSave) {
+      document.getElementById("customModalTitle").textContent = title;
+      const input = document.getElementById("customModalInput");
+      input.value = "";
+      input.placeholder = placeholder;
+      document.getElementById("customInputModal").classList.remove("hidden");
+      setTimeout(() => input.focus(), 50);
+
+      document.getElementById("customModalSaveBtn").onclick = () => {
+        const val = input.value.trim();
+        if (!val) return;
+        closeCustomModal();
+        onSave(val);
+      };
+    }
+
+    function closeCustomModal() {
+      document.getElementById("customInputModal").classList.add("hidden");
+    }
+
+    function promptNewSection() {
+      openCustomInputModal("Naya Section Name", "e.g. Supplier Bills, Daily Cash", (val) => {
+        if (!activeShop) return;
+        if (!activeShop.sections.includes(val)) {
+          activeShop.sections.push(val);
+        }
+        activeShop.activeSection = val;
+        const shops = getAllShops();
+        const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+        if (idx !== -1) {
+          shops[idx] = activeShop;
+          saveAllShops(shops);
+        }
+        showToast(`Section '${val}' add ho gaya!`);
+        renderDashboardData();
+      });
+    }
+
+    function promptNewCustomer() {
+      openCustomInputModal("Naya Grahak Name", "Grahak ka name likhein...", (val) => {
+        if (!activeShop) return;
+        if (!activeShop.customers.includes(val)) {
+          activeShop.customers.push(val);
+          const shops = getAllShops();
+          const idx = shops.findIndex(s => normalizePhone(s.mobile) === normalizePhone(activeShop.mobile));
+          if (idx !== -1) {
+            shops[idx] = activeShop;
+            saveAllShops(shops);
+          }
+        }
+        document.getElementById("parseName").value = val;
+        showToast(`Grahak '${val}' shamil ho gaya!`);
+      });
+    }
+
+    window.addEventListener("online", updateNetworkStatusBadge);
+    window.addEventListener("offline", updateNetworkStatusBadge);
+
+    const ALL_UI_TRANSLATIONS = {
+      "ur-PK": {
+        subtitle: "ڈیجیٹل وائس کھاتہ سسٹم",
+        regTitle: "دکان کھاتہ رجسٹریشن",
+        regDesc: "دکان کا روزانہ حساب بغیر لکھے بول کر درج کرنے کے لیے تفصیلات لکھیں۔",
+        fullName: "اپنا پورا نام *",
+        mobileNum: "موبائل نمبر *",
+        shopName: "دکان کا نام *",
+        sendDetails: "اونر کو تفصیلات بھیجیں (03457267940)",
+        alreadyReg: "پہلے سے رجسٹرڈ ہیں؟ موبائل نمبر درج کریں:",
+        loginBtn: "لاگ ان",
+        exitBtn: "اکاؤنٹ سے باہر نکلیں",
+        voiceHeading: "بول کر کھاتہ درج کریں",
+        bolein: "بولیں",
+        stopBtn: "روکیں",
+        parseBtn: "درج کریں",
+        saveBtn: "کھاتہ میں محفوظ کریں",
+        totalBill: "کل بل",
+        totalWasool: "کل وصول",
+        totalUdhar: "کل ادھار (باقی)",
+        searchPlaceholder: "گاہک یا سامان کا نام تلاش کریں...",
+        newCustomer: "+ نیا گاہک",
+        recordsTitle: "کھاتہ ریکارڈز",
+        ownerHeading: "اونر ماسٹر کنٹرول",
+        ownerSub: "تمام دکانداروں کو شامل، خوش آمدید، ماہانہ فیس اور بلاک کریں",
+        khataAppBtn: "کھاتہ ایپ"
+      },
+      "ur-Latn": {
+        subtitle: "Digital Voice Khata System",
+        regTitle: "Dukan Khata Registration",
+        regDesc: "Dukan ka rozana hisab bina likhe bol kar daraj karne ke liye details likhein.",
+        fullName: "Apna Pura Name *",
+        mobileNum: "Mobile Number *",
+        shopName: "Dukan Ka Name *",
+        sendDetails: "Send Details to Owner (03457267940)",
+        alreadyReg: "Pehle se registered hain? Mobile number daalein:",
+        loginBtn: "Login",
+        exitBtn: "Exit Account",
+        voiceHeading: "Speech Se Khata Daraj Karein",
+        bolein: "BOLEIN",
+        stopBtn: "STOP",
+        parseBtn: "Parse",
+        saveBtn: "Khate Mein Save Karein",
+        totalBill: "Kul Bill",
+        totalWasool: "Kul Wasool",
+        totalUdhar: "Kul Udhar (Baqi)",
+        searchPlaceholder: "Grahak ya Saman ka naam search karein...",
+        newCustomer: "+ Naya Grahak",
+        recordsTitle: "Khata Records",
+        ownerHeading: "OWNER MASTER CONTROL",
+        ownerSub: "Tamam dukandaron ko Add, Welcome, Mahana Fee & Block karein",
+        khataAppBtn: "Khata App"
+      },
+      "hi-IN": {
+        subtitle: "डिजिटल वॉइस खाता सिस्टम",
+        regTitle: "दुकान खाता पंजीकरण",
+        regDesc: "दुकान का रोज़ाना हिसाब बिना लिखे बोलकर दर्ज करने के लिए विवरण लिखें।",
+        fullName: "अपना पूरा नाम *",
+        mobileNum: "मोबाइल नंबर *",
+        shopName: "दुकान का नाम *",
+        sendDetails: "ओनर को विवरण भेजें (03457267940)",
+        alreadyReg: "पहले से पंजीकृत हैं? मोबाइल नंबर दर्ज करें:",
+        loginBtn: "लॉगिन",
+        exitBtn: "खाते से बाहर निकलें",
+        voiceHeading: "बोलकर खाता दर्ज करें",
+        bolein: "बोलें",
+        stopBtn: "रोकें",
+        parseBtn: "पार्स करें",
+        saveBtn: "खाते में सहेजें",
+        totalBill: "कुल बिल",
+        totalWasool: "कुल वसूली",
+        totalUdhar: "कुल उधार (बाकी)",
+        searchPlaceholder: "ग्राहक या सामान का नाम खोजें...",
+        newCustomer: "+ नया ग्राहक",
+        recordsTitle: "खाता रिकॉर्ड्स",
+        ownerHeading: "ओनर मास्टर कंट्रोल",
+        ownerSub: "सभी दुकानदारों को जोड़ें, स्वागत करें, मासिक शुल्क और ब्लॉक करें",
+        khataAppBtn: "खाता ऐप"
+      },
+      "en-US": {
+        subtitle: "Digital Voice Khata System",
+        regTitle: "Dukan Khata Registration",
+        regDesc: "Enter your details to record daily shop accounts by voice without typing.",
+        fullName: "Your Full Name *",
+        mobileNum: "Mobile Number *",
+        shopName: "Shop Name *",
+        sendDetails: "Send Details to Owner (03457267940)",
+        alreadyReg: "Already registered? Enter mobile number:",
+        loginBtn: "Login",
+        exitBtn: "Exit Account",
+        voiceHeading: "Record Khata by Speech",
+        bolein: "SPEAK",
+        stopBtn: "STOP",
+        parseBtn: "Parse",
+        saveBtn: "Save to Khata",
+        totalBill: "Total Bill",
+        totalWasool: "Total Received",
+        totalUdhar: "Total Credit (Due)",
+        searchPlaceholder: "Search customer or item name...",
+        newCustomer: "+ New Customer",
+        recordsTitle: "Khata Records",
+        ownerHeading: "OWNER MASTER CONTROL",
+        ownerSub: "Add, Welcome, Monthly Fee & Block all shopkeepers",
+        khataAppBtn: "Khata App"
+      },
+      "en-GB": {
+        subtitle: "Digital Voice Khata System",
+        regTitle: "Dukan Khata Registration",
+        regDesc: "Enter your details to record daily shop accounts by voice without typing.",
+        fullName: "Your Full Name *",
+        mobileNum: "Mobile Number *",
+        shopName: "Shop Name *",
+        sendDetails: "Send Details to Owner (03457267940)",
+        alreadyReg: "Already registered? Enter mobile number:",
+        loginBtn: "Login",
+        exitBtn: "Exit Account",
+        voiceHeading: "Record Khata by Speech",
+        bolein: "SPEAK",
+        stopBtn: "STOP",
+        parseBtn: "Parse",
+        saveBtn: "Save to Khata",
+        totalBill: "Total Bill",
+        totalWasool: "Total Received",
+        totalUdhar: "Total Credit (Due)",
+        searchPlaceholder: "Search customer or item name...",
+        newCustomer: "+ New Customer",
+        recordsTitle: "Khata Records",
+        ownerHeading: "OWNER MASTER CONTROL",
+        ownerSub: "Add, Welcome, Monthly Fee & Block all shopkeepers",
+        khataAppBtn: "Khata App"
+      },
+      "pa-Guru-IN": {
+        subtitle: "ਡਿਜੀਟਲ ਵੌਇਸ ਖਾਤਾ ਸਿਸਟਮ",
+        regTitle: "ਦੁਕਾਨ ਖਾਤਾ ਰਜਿਸਟ੍ਰੇਸ਼ਨ",
+        regDesc: "ਦੁਕਾਨ ਦਾ ਰੋਜ਼ਾਨਾ ਹਿਸਾਬ ਬੋਲ ਕੇ ਦਰਜ ਕਰਨ ਲਈ ਵੇਰਵੇ ਲਿਖੋ।",
+        fullName: "ਆਪਣਾ ਪੂਰਾ ਨਾਮ *",
+        mobileNum: "ਮੋਬਾਈਲ ਨੰਬਰ *",
+        shopName: "ਦੁਕਾਨ ਦਾ ਨਾਮ *",
+        sendDetails: "ਮਾਲਕ ਨੂੰ ਵੇਰਵੇ ਭੇਜੋ (03457267940)",
+        alreadyReg: "ਪਹਿਲਾਂ ਹੀ ਰਜਿਸਟਰਡ ਹੋ? ਮੋਬਾਈਲ ਨੰਬਰ ਲਿਖੋ:",
+        loginBtn: "ਲਾਗਇਨ",
+        exitBtn: "ਬਾਹਰ ਨਿਕਲੋ",
+        voiceHeading: "ਬੋਲ ਕੇ ਖਾਤਾ ਦਰਜ ਕਰੋ",
+        bolein: "ਬੋਲੋ",
+        stopBtn: "ਰੋਕੋ",
+        parseBtn: "ਪਾਰਸ",
+        saveBtn: "ਖਾਤੇ ਵਿੱਚ ਸੇਵ ਕਰੋ",
+        totalBill: "ਕੁੱਲ ਬਿੱਲ",
+        totalWasool: "ਕੁੱਲ ਵਸੂਲ",
+        totalUdhar: "ਕੁੱਲ ਉਧਾਰ",
+        searchPlaceholder: "ਗਾਹਕ ਜਾਂ ਸਮਾਨ ਦਾ ਨਾਮ ਲੱਭੋ...",
+        newCustomer: "+ ਨਵਾਂ ਗਾਹਕ",
+        recordsTitle: "ਖਾਤਾ ਰਿਕਾਰਡ",
+        ownerHeading: "ਮਾਲਕ ਮਾਸਟਰ ਕੰਟਰੋਲ",
+        ownerSub: "ਦੁਕਾਨਦਾਰ ਜੋੜੋ, ਮਹੀਨਾਵਾਰ ਫੀਸ ਅਤੇ ਬਲੌਕ ਕਰੋ",
+        khataAppBtn: "ਖਾਤਾ ਐਪ"
+      },
+      "ps-AF": {
+        subtitle: "ډیجیټل غږیزه کھاتہ سیسټم",
+        regTitle: "د دوکان کھاتہ ثبتول",
+        regDesc: "د دوکان ورځنی حساب په غږ ثبتولو لپاره معلومات ولیکئ.",
+        fullName: "خپل بشپړ نوم *",
+        mobileNum: "د موبایل شمیره *",
+        shopName: "د دوکان نوم *",
+        sendDetails: "مالک ته معلومات واستوئ (03457267940)",
+        alreadyReg: "له مخکې ثبت شوی؟ د موبایل شمیره ولیکئ:",
+        loginBtn: "ننوتل",
+        exitBtn: "وتل",
+        voiceHeading: "په غږ کھاتہ ثبت کړئ",
+        bolein: "ووایاست",
+        stopBtn: "بندول",
+        parseBtn: "تحلیل",
+        saveBtn: "په کھاتہ کې خوندي کړئ",
+        totalBill: "ټول بل",
+        totalWasool: "ټول ترلاسه شوي",
+        totalUdhar: "ټول پور",
+        searchPlaceholder: "پیرودونکی یا توکی وپلټئ...",
+        newCustomer: "+ نوی پیرودونکی",
+        recordsTitle: "د کھاتہ ریکارډونه",
+        ownerHeading: "د مالک کنټرول پینل",
+        ownerSub: "دوکاندار اضافه، میاشتنی فیس او بلاک کړئ",
+        khataAppBtn: "کھاتہ ایپ"
+      },
+      "sd-PK": {
+        subtitle: "ڊجيٽل وائس کاتو سسٽم",
+        regTitle: "دڪان کاتو رجسٽريشن",
+        regDesc: "دڪان جو روزانو حساب ڳالھائي داخل ڪرڻ لاءِ تفصيل لکو.",
+        fullName: "پنھنجو پورو نالو *",
+        mobileNum: "موبائل نمبر *",
+        shopName: "دڪان جو نالو *",
+        sendDetails: "مالڪ کي تفصيل موڪليو (03457267940)",
+        alreadyReg: "اڳ ۾ رجسٽرڊ آھيو؟ موبائل نمبر لکو:",
+        loginBtn: "لاگ ان",
+        exitBtn: "ٻاھر نڪرو",
+        voiceHeading: "ڳالھائي کاتو داخل ڪريو",
+        bolein: "ڳالھايو",
+        stopBtn: "روڪيو",
+        parseBtn: "پارس",
+        saveBtn: "کاتي ۾ محفوظ ڪريو",
+        totalBill: "ڪل بل",
+        totalWasool: "ڪل وصول",
+        totalUdhar: "ڪل اڌار",
+        searchPlaceholder: "گراھڪ يا سامان جو نالو ڳوليو...",
+        newCustomer: "+ نئون گراھڪ",
+        recordsTitle: "کاتي جا رڪارڊ",
+        ownerHeading: "مالڪ ماسٽر ڪنٽرول",
+        ownerSub: "دڪاندار شامل، مھانھ فيس ۽ بلاڪ ڪريو",
+        khataAppBtn: "کاتو ايپ"
+      },
+      "skr-PK": {
+        subtitle: "ڈیجیٹل وائس کھاتہ نظام",
+        regTitle: "دکان کھاتہ رجسٹریشن",
+        regDesc: "دکان دا روزانہ حساب ٻول تے درج کرݨ کیتے تفصیل لکھو۔",
+        fullName: "اپݨا پورا ناں *",
+        mobileNum: "موبائل نمبر *",
+        shopName: "دکان دا ناں *",
+        sendDetails: "مالک کوں تفصیل بھیجو (03457267940)",
+        alreadyReg: "پہلے توں رجسٹرڈ ہن؟ موبائل نمبر لکھو:",
+        loginBtn: "لاگ ان",
+        exitBtn: "ٻاہر نکلو",
+        voiceHeading: "ٻول تے کھاتہ درج کرو",
+        bolein: "ٻولو",
+        stopBtn: "روکو",
+        parseBtn: "پارس",
+        saveBtn: "کھاتہ وچ محفوظ کرو",
+        totalBill: "کل بل",
+        totalWasool: "کل وصول",
+        totalUdhar: "کل ادھار",
+        searchPlaceholder: "گاہک یا سامان دا ناں لبھو...",
+        newCustomer: "+ نواں گاہک",
+        recordsTitle: "کھاتہ ریکارڈ",
+        ownerHeading: "مالک ماسٹر کنٹرول",
+        ownerSub: "دکاندار شامل، مہینہ فیس تے بلاک کرو",
+        khataAppBtn: "کھاتہ ایپ"
+      },
+      "bal-PK": {
+        subtitle: "ڈیجیٹل وائس کھاتہ سسٹم",
+        regTitle: "دوکان کھاتہ رجسٹریشن",
+        regDesc: "دوکان ءِ روچ ءِ حساب ءَ گوں گپ جن ءَ نبشتہ کن ءَ حال بدے۔",
+        fullName: "وتی سرجمیں نام *",
+        mobileNum: "موبائل نمبر *",
+        shopName: "دوکان ءِ نام *",
+        sendDetails: "مالک ءَ حال دیم بدے (03457267940)",
+        alreadyReg: "پیش ءَ رجسٹرڈ ئے؟ موبائل نمبر نبشتہ کن:",
+        loginBtn: "لاگ ان",
+        exitBtn: "در بیا",
+        voiceHeading: "گوں گپ جن ءَ کھاتہ نبشتہ کن",
+        bolein: "گپ جن",
+        stopBtn: "بند کن",
+        parseBtn: "پارس",
+        saveBtn: "کھاتہ ءَ سیو کن",
+        totalBill: "کل بل",
+        totalWasool: "کل وصول",
+        totalUdhar: "کل وام",
+        searchPlaceholder: "گاہک یا چیز ءِ نام شوہاز کن...",
+        newCustomer: "+ نوکیں گاہک",
+        recordsTitle: "کھاتہ ریکارڈ",
+        ownerHeading: "مالک کنٹرول",
+        ownerSub: "دوکاندار ھوار کن، ماھانہ فیس ءُ بلاک کن",
+        khataAppBtn: "کھاتہ ایپ"
+      },
+      "ks-IN": {
+        subtitle: "ڈیجیٹل وائس کھاتہ سسٹم",
+        regTitle: "دوکان کھاتہ رجسٹریشن",
+        regDesc: "دوکان ہُنٛد روزانہ حساب وۆلِتھ دَرٕج کرنہٕ خٲطرٕ تفصیل لیکھِو۔",
+        fullName: "پنُن پوٗرٕ ناو *",
+        mobileNum: "موبائل نمبر *",
+        shopName: "دوکانُک ناو *",
+        sendDetails: "مالِکَس تفصیل سوزِو (03457267940)",
+        alreadyReg: "برونٛہہ پٮ۪ٹھٕ رجسٹرڈ چھِو؟ موبائل نمبر لیکھِو:",
+        loginBtn: "لاگ ان",
+        exitBtn: "نیٚبر گژھِو",
+        voiceHeading: "وۆلِتھ کھاتہ دَرٕج کٔرِو",
+        bolein: "وۆلِو",
+        stopBtn: "رُکاوِو",
+        parseBtn: "پارس",
+        saveBtn: "کھاتَس منٛز محفوٗظ کٔرِو",
+        totalBill: "کُل بِل",
+        totalWasool: "کُل وُصوٗل",
+        totalUdhar: "کُل اُدھار",
+        searchPlaceholder: "گاہَک یا سامانُک ناو ژھۆنٛڈِو...",
+        newCustomer: "+ نوٚو گاہَک",
+        recordsTitle: "کھاتہ ریکارڈ",
+        ownerHeading: "مالِک ماسٹر کنٹرول",
+        ownerSub: "دوکاندار شٲمِل، رؠتہٕ فیس تہٕ بلاک کٔرِو",
+        khataAppBtn: "کھاتہ ایپ"
+      },
+      "ar-SA": {
+        subtitle: "نظام الحساب الصوتي الرقمي",
+        regTitle: "تسجيل حساب المتجر",
+        regDesc: "أدخل بياناتك لتسجيل حسابات المتجر اليومية بالصوت.",
+        fullName: "الاسم الكامل *",
+        mobileNum: "رقم الجوال *",
+        shopName: "اسم المتجر *",
+        sendDetails: "إرسال البيانات إلى المالك (03457267940)",
+        alreadyReg: "مسجل مسبقاً؟ أدخل رقم الجوال:",
+        loginBtn: "دخول",
+        exitBtn: "خروج",
+        voiceHeading: "تسجيل الحساب بالصوت",
+        bolein: "تحدث",
+        stopBtn: "إيقاف",
+        parseBtn: "تحليل",
+        saveBtn: "حفظ في الحساب",
+        totalBill: "إجمالي الفاتورة",
+        totalWasool: "إجمالي المستلم",
+        totalUdhar: "إجمالي الآجل",
+        searchPlaceholder: "ابحث عن العميل أو الصنف...",
+        newCustomer: "+ عميل جديد",
+        recordsTitle: "سجلات الحساب",
+        ownerHeading: "لوحة تحكم المالك",
+        ownerSub: "إضافة وترحيب ورسوم شهرية وحظر المتاجر",
+        khataAppBtn: "تطبيق الحساب"
+      },
+      "fa-IR": {
+        subtitle: "سامانه صوتی حسابداری فروشگاه",
+        regTitle: "ثبت‌نام حساب فروشگاه",
+        regDesc: "برای ثبت حساب روزانه فروشگاه با صدا مشخصات را وارد کنید.",
+        fullName: "نام و نام خانوادگی *",
+        mobileNum: "شماره موبایل *",
+        shopName: "نام فروشگاه *",
+        sendDetails: "ارسال اطلاعات به مدیر (03457267940)",
+        alreadyReg: "قبلاً ثبت‌نام کرده‌اید؟ شماره موبایل را وارد کنید:",
+        loginBtn: "ورود",
+        exitBtn: "خروج از حساب",
+        voiceHeading: "ثبت حساب با صدا",
+        bolein: "بگویید",
+        stopBtn: "توقف",
+        parseBtn: "تحلیل",
+        saveBtn: "ذخیره در حساب",
+        totalBill: "جمع کل فاکتور",
+        totalWasool: "جمع دریافتی",
+        totalUdhar: "جمع نسیه",
+        searchPlaceholder: "جستجوی مشتری یا کالا...",
+        newCustomer: "+ مشتری جدید",
+        recordsTitle: "سوابق حساب",
+        ownerHeading: "کنترل پنل مدیر",
+        ownerSub: "افزودن، خوش‌آمدگویی، شهریه ماهانه و مسدودسازی",
+        khataAppBtn: "اپلیکیشن حساب"
+      },
+      "bn-BD": {
+        subtitle: "ডিজিটাল ভয়েস খাতা সিস্টেম",
+        regTitle: "দোকান খাতা রেজিস্ট্রেশন",
+        regDesc: "দোকানের দৈনিক হিসাব ভয়েস দিয়ে লিখতে তথ্য দিন।",
+        fullName: "আপনার পুরো নাম *",
+        mobileNum: "মোবাইল নম্বর *",
+        shopName: "দোকানের নাম *",
+        sendDetails: "মালিককে তথ্য পাঠান (03457267940)",
+        alreadyReg: "আগে থেকেই নিবন্ধিত? মোবাইল নম্বর দিন:",
+        loginBtn: "লগইন",
+        exitBtn: "বের হন",
+        voiceHeading: "কথা বলে খাতায় লিখুন",
+        bolein: "বলুন",
+        stopBtn: "থামুন",
+        parseBtn: "পার্স",
+        saveBtn: "খাতায় সংরক্ষণ করুন",
+        totalBill: "মোট বিল",
+        totalWasool: "মোট আদায়",
+        totalUdhar: "মোট বাকি",
+        searchPlaceholder: "গ্রাহক বা পণ্যের নাম খুঁজুন...",
+        newCustomer: "+ নতুন গ্রাহক",
+        recordsTitle: "খাতার হিসাব",
+        ownerHeading: "মালিক মাস্টার কন্ট্রোল",
+        ownerSub: "দোকান যুক্ত করুন, মাসিক ফি ও ব্লক করুন",
+        khataAppBtn: "খাতা অ্যাপ"
+      },
+      "tr-TR": {
+        subtitle: "Dijital Sesli Defter Sistemi",
+        regTitle: "Dükkan Defteri Kaydı",
+        regDesc: "Günlük dükkan hesaplarını sesle kaydetmek için bilgilerinizi girin.",
+        fullName: "Adınız Soyadınız *",
+        mobileNum: "Mobil Numara *",
+        shopName: "Dükkan Adı *",
+        sendDetails: "Bilgileri Sahibe Gönder (03457267940)",
+        alreadyReg: "Zaten kayıtlı mısınız? Numara girin:",
+        loginBtn: "Giriş",
+        exitBtn: "Çıkış Yap",
+        voiceHeading: "Sesle Deftere Kaydet",
+        bolein: "KONUŞ",
+        stopBtn: "DURDUR",
+        parseBtn: "Ayrıştır",
+        saveBtn: "Deftere Kaydet",
+        totalBill: "Toplam Fatura",
+        totalWasool: "Toplam Tahsilat",
+        totalUdhar: "Toplam Veresiye",
+        searchPlaceholder: "Müşteri veya ürün ara...",
+        newCustomer: "+ Yeni Müşteri",
+        recordsTitle: "Defter Kayıtları",
+        ownerHeading: "SAHİP KONTROL PANELİ",
+        ownerSub: "Dükkan ekle, aylık ücret ve engelle",
+        khataAppBtn: "Defter Uygulaması"
+      },
+      "fr-FR": {
+        subtitle: "Système Vocal de Comptabilité",
+        regTitle: "Inscription Khata Boutique",
+        regDesc: "Entrez vos détails pour enregistrer les comptes quotidiens par la voix.",
+        fullName: "Nom complet *",
+        mobileNum: "Numéro mobile *",
+        shopName: "Nom de la boutique *",
+        sendDetails: "Envoyer au propriétaire (03457267940)",
+        alreadyReg: "Déjà inscrit ? Entrez le mobile :",
+        loginBtn: "Connexion",
+        exitBtn: "Quitter le compte",
+        voiceHeading: "Enregistrer par la voix",
+        bolein: "PARLER",
+        stopBtn: "STOP",
+        parseBtn: "Analyser",
+        saveBtn: "Enregistrer dans Khata",
+        totalBill: "Total Facture",
+        totalWasool: "Total Reçu",
+        totalUdhar: "Total Crédit",
+        searchPlaceholder: "Rechercher client ou article...",
+        newCustomer: "+ Nouveau Client",
+        recordsTitle: "Registre Khata",
+        ownerHeading: "CONTRÔLE PROPRIÉTAIRE",
+        ownerSub: "Ajouter, bienvenue, frais mensuels et bloquer",
+        khataAppBtn: "App Khata"
+      },
+      "es-ES": {
+        subtitle: "Sistema de Contabilidad por Voz",
+        regTitle: "Registro de Tienda Khata",
+        regDesc: "Ingrese sus datos para registrar cuentas diarias por voz.",
+        fullName: "Nombre completo *",
+        mobileNum: "Número móvil *",
+        shopName: "Nombre de la tienda *",
+        sendDetails: "Enviar al propietario (03457267940)",
+        alreadyReg: "¿Ya registrado? Ingrese móvil:",
+        loginBtn: "Iniciar sesión",
+        exitBtn: "Salir de la cuenta",
+        voiceHeading: "Registrar por Voz",
+        bolein: "HABLAR",
+        stopBtn: "DETENER",
+        parseBtn: "Analizar",
+        saveBtn: "Guardar en Khata",
+        totalBill: "Factura Total",
+        totalWasool: "Total Cobrado",
+        totalUdhar: "Total Crédito",
+        searchPlaceholder: "Buscar cliente o artículo...",
+        newCustomer: "+ Nuevo Cliente",
+        recordsTitle: "Registros Khata",
+        ownerHeading: "PANEL DEL PROPIETARIO",
+        ownerSub: "Agregar, bienvenida, cuota mensual y bloquear",
+        khataAppBtn: "App Khata"
+      },
+      "de-DE": {
+        subtitle: "Digitales Sprach-Khata-System",
+        regTitle: "Laden-Khata Registrierung",
+        regDesc: "Geben Sie Ihre Daten ein, um tägliche Konten per Sprache zu erfassen.",
+        fullName: "Vollständiger Name *",
+        mobileNum: "Mobilnummer *",
+        shopName: "Ladenname *",
+        sendDetails: "Details an Inhaber senden (03457267940)",
+        alreadyReg: "Bereits registriert? Nummer eingeben:",
+        loginBtn: "Anmelden",
+        exitBtn: "Konto verlassen",
+        voiceHeading: "Per Sprache erfassen",
+        bolein: "SPRECHEN",
+        stopBtn: "STOPP",
+        parseBtn: "Parsen",
+        saveBtn: "In Khata speichern",
+        totalBill: "Gesamtrechnung",
+        totalWasool: "Gesamt erhalten",
+        totalUdhar: "Gesamt Kredit",
+        searchPlaceholder: "Kunde oder Artikel suchen...",
+        newCustomer: "+ Neuer Kunde",
+        recordsTitle: "Khata-Einträge",
+        ownerHeading: "INHABER-STEUERUNG",
+        ownerSub: "Läden hinzufügen, Monatsgebühr & blockieren",
+        khataAppBtn: "Khata-App"
+      },
+      "zh-CN": {
+        subtitle: "数字语音账本系统",
+        regTitle: "店铺账本注册",
+        regDesc: "输入您的信息以通过语音记录每日店铺账目。",
+        fullName: "您的全名 *",
+        mobileNum: "手机号码 *",
+        shopName: "店铺名称 *",
+        sendDetails: "发送信息给店主 (03457267940)",
+        alreadyReg: "已注册？请输入手机号：",
+        loginBtn: "登录",
+        exitBtn: "退出账号",
+        voiceHeading: "语音记账",
+        bolein: "说话",
+        stopBtn: "停止",
+        parseBtn: "解析",
+        saveBtn: "保存到账本",
+        totalBill: "总账单",
+        totalWasool: "已收金额",
+        totalUdhar: "赊账金额",
+        searchPlaceholder: "搜索客户或商品名称...",
+        newCustomer: "+ 新客户",
+        recordsTitle: "账本记录",
+        ownerHeading: "店主管理中心",
+        ownerSub: "添加店铺、欢迎解锁、月费及封禁",
+        khataAppBtn: "账本应用"
+      },
+      "ru-RU": {
+        subtitle: "Голосовая система учёта магазина",
+        regTitle: "Регистрация магазина Khata",
+        regDesc: "Введите данные для записи ежедневного учёта голосом.",
+        fullName: "Полное имя *",
+        mobileNum: "Номер телефона *",
+        shopName: "Название магазина *",
+        sendDetails: "Отправить владельцу (03457267940)",
+        alreadyReg: "Уже зарегистрированы? Введите номер:",
+        loginBtn: "Войти",
+        exitBtn: "Выйти",
+        voiceHeading: "Запись голосом",
+        bolein: "ГОВОРИТЬ",
+        stopBtn: "СТОП",
+        parseBtn: "Разобрать",
+        saveBtn: "Сохранить в учёт",
+        totalBill: "Всего по счёту",
+        totalWasool: "Получено",
+        totalUdhar: "В долг",
+        searchPlaceholder: "Поиск клиента или товара...",
+        newCustomer: "+ Новый клиент",
+        recordsTitle: "Записи учёта",
+        ownerHeading: "ПАНЕЛЬ ВЛАДЕЛЬЦА",
+        ownerSub: "Добавление, оплата и блокировка магазинов",
+        khataAppBtn: "Приложение учёта"
+      },
+      "ja-JP": {
+        subtitle: "デジタル音声帳簿システム",
+        regTitle: "店舗帳簿登録",
+        regDesc: "音声で日々の店舗会計を記録するために詳細を入力してください。",
+        fullName: "氏名 *",
+        mobileNum: "携帯番号 *",
+        shopName: "店舗名 *",
+        sendDetails: "オーナーに送信 (03457267940)",
+        alreadyReg: "登録済みですか？番号を入力：",
+        loginBtn: "ログイン",
+        exitBtn: "ログアウト",
+        voiceHeading: "音声で帳簿入力",
+        bolein: "話す",
+        stopBtn: "停止",
+        parseBtn: "解析",
+        saveBtn: "帳簿に保存",
+        totalBill: "合計請求",
+        totalWasool: "回収合計",
+        totalUdhar: "売掛・未収",
+        searchPlaceholder: "顧客または商品を検索...",
+        newCustomer: "+ 新規顧客",
+        recordsTitle: "帳簿レコード",
+        ownerHeading: "オーナー管理画面",
+        ownerSub: "店舗追加・月額料金・ブロック管理",
+        khataAppBtn: "帳簿アプリ"
+      },
+      "ko-KR": {
+        subtitle: "디지털 음성 장부 시스템",
+        regTitle: "매장 장부 등록",
+        regDesc: "음성으로 일일 매장 장부를 기록하려면 정보를 입력하세요.",
+        fullName: "성함 *",
+        mobileNum: "휴대폰 번호 *",
+        shopName: "매장 이름 *",
+        sendDetails: "소유자에게 전송 (03457267940)",
+        alreadyReg: "이미 가입하셨나요? 번호 입력:",
+        loginBtn: "로그인",
+        exitBtn: "계정 나가기",
+        voiceHeading: "음성으로 장부 기록",
+        bolein: "말하기",
+        stopBtn: "중지",
+        parseBtn: "분석",
+        saveBtn: "장부에 저장",
+        totalBill: "총 청구액",
+        totalWasool: "총 수금액",
+        totalUdhar: "총 외상",
+        searchPlaceholder: "고객 또는 품목 검색...",
+        newCustomer: "+ 새 고객",
+        recordsTitle: "장부 기록",
+        ownerHeading: "소유자 마스터 제어",
+        ownerSub: "매장 추가, 월 이용료 및 차단 관리",
+        khataAppBtn: "장부 앱"
+      },
+      "id-ID": {
+        subtitle: "Sistem Buku Kas Suara Digital",
+        regTitle: "Pendaftaran Khata Toko",
+        regDesc: "Masukkan detail untuk mencatat keuangan toko harian dengan suara.",
+        fullName: "Nama Lengkap *",
+        mobileNum: "Nomor HP *",
+        shopName: "Nama Toko *",
+        sendDetails: "Kirim ke Pemilik (03457267940)",
+        alreadyReg: "Sudah terdaftar? Masukkan nomor HP:",
+        loginBtn: "Masuk",
+        exitBtn: "Keluar Akun",
+        voiceHeading: "Catat Khata dengan Suara",
+        bolein: "BICARA",
+        stopBtn: "STOP",
+        parseBtn: "Urai",
+        saveBtn: "Simpan ke Khata",
+        totalBill: "Total Tagihan",
+        totalWasool: "Total Diterima",
+        totalUdhar: "Total Utang",
+        searchPlaceholder: "Cari nama pelanggan atau barang...",
+        newCustomer: "+ Pelanggan Baru",
+        recordsTitle: "Catatan Khata",
+        ownerHeading: "KONTROL UTAMA PEMILIK",
+        ownerSub: "Tambah toko, biaya bulanan & blokir",
+        khataAppBtn: "Aplikasi Khata"
+      },
+      "ms-MY": {
+        subtitle: "Sistem Buku Kira Suara Digital",
+        regTitle: "Pendaftaran Khata Kedai",
+        regDesc: "Masukkan butiran untuk merekod akaun harian kedai melalui suara.",
+        fullName: "Nama Penuh *",
+        mobileNum: "Nombor Telefon *",
+        shopName: "Nama Kedai *",
+        sendDetails: "Hantar kepada Pemilik (03457267940)",
+        alreadyReg: "Sudah berdaftar? Masukkan nombor:",
+        loginBtn: "Log Masuk",
+        exitBtn: "Keluar Akaun",
+        voiceHeading: "Rekod Khata Melalui Suara",
+        bolein: "CAKAP",
+        stopBtn: "BERHENTI",
+        parseBtn: "Hurai",
+        saveBtn: "Simpan ke Khata",
+        totalBill: "Jumlah Bil",
+        totalWasool: "Jumlah Diterima",
+        totalUdhar: "Jumlah Hutang",
+        searchPlaceholder: "Cari nama pelanggan atau barang...",
+        newCustomer: "+ Pelanggan Baharu",
+        recordsTitle: "Rekod Khata",
+        ownerHeading: "KAWALAN UTAMA PEMILIK",
+        ownerSub: "Tambah kedai, yuran bulanan & sekat",
+        khataAppBtn: "Aplikasi Khata"
+      },
+      "sw-KE": {
+        subtitle: "Mfumo wa DaFTari la Sauti Dijitali",
+        regTitle: "Usajili wa Duka Khata",
+        regDesc: "Weka maelezo yako kurekodi hesabu za duka kila siku kwa sauti.",
+        fullName: "Jina Kamili *",
+        mobileNum: "Nambari ya Simu *",
+        shopName: "Jina la Duka *",
+        sendDetails: "Tuma kwa Mmiliki (03457267940)",
+        alreadyReg: "Tayari umesajiliwa? Weka nambari:",
+        loginBtn: "Ingia",
+        exitBtn: "Toka Akaunti",
+        voiceHeading: "Rekodi kwa Sauti",
+        bolein: "ONGEA",
+        stopBtn: "SIMAMA",
+        parseBtn: "Chambua",
+        saveBtn: "Hifadhi kwenye Khata",
+        totalBill: "Jumla ya Bili",
+        totalWasool: "Jumla Iliyopokelewa",
+        totalUdhar: "Jumla ya Deni",
+        searchPlaceholder: "Tafuta mteja au bidhaa...",
+        newCustomer: "+ Mteja Mpya",
+        recordsTitle: "Rekodi za Khata",
+        ownerHeading: "UDHIBITI WA MMILIKI",
+        ownerSub: "Ongeza duka, ada ya mwezi na zuia",
+        khataAppBtn: "App ya Khata"
+      },
+      "pt-BR": {
+        subtitle: "Sistema Digital de Khata por Voz",
+        regTitle: "Cadastro de Loja Khata",
+        regDesc: "Insira seus dados para registrar contas diárias da loja por voz.",
+        fullName: "Nome completo *",
+        mobileNum: "Número de celular *",
+        shopName: "Nome da loja *",
+        sendDetails: "Enviar ao proprietário (03457267940)",
+        alreadyReg: "Já cadastrado? Digite o celular:",
+        loginBtn: "Entrar",
+        exitBtn: "Sair da conta",
+        voiceHeading: "Registrar por Voz",
+        bolein: "FALAR",
+        stopBtn: "PARAR",
+        parseBtn: "Analisar",
+        saveBtn: "Salvar no Khata",
+        totalBill: "Total da Conta",
+        totalWasool: "Total Recebido",
+        totalUdhar: "Total a Prazo",
+        searchPlaceholder: "Buscar cliente ou item...",
+        newCustomer: "+ Novo Cliente",
+        recordsTitle: "Registros Khata",
+        ownerHeading: "PAINEL DO PROPRIETÁRIO",
+        ownerSub: "Adicionar loja, mensalidade e bloquear",
+        khataAppBtn: "App Khata"
+      },
+      "it-IT": {
+        subtitle: "Sistema Contabile Vocale Digitale",
+        regTitle: "Registrazione Negozio Khata",
+        regDesc: "Inserisci i dati per registrare i conti giornalieri a voce.",
+        fullName: "Nome completo *",
+        mobileNum: "Numero cellulare *",
+        shopName: "Nome negozio *",
+        sendDetails: "Invia al proprietario (03457267940)",
+        alreadyReg: "Già registrato? Inserisci numero:",
+        loginBtn: "Accedi",
+        exitBtn: "Esci dall'account",
+        voiceHeading: "Registra a Voce",
+        bolein: "PARLA",
+        stopBtn: "FERMA",
+        parseBtn: "Analizza",
+        saveBtn: "Salva in Khata",
+        totalBill: "Totale Conto",
+        totalWasool: "Totale Incassato",
+        totalUdhar: "Totale Credito",
+        searchPlaceholder: "Cerca cliente o articolo...",
+        newCustomer: "+ Nuovo Cliente",
+        recordsTitle: "Record Khata",
+        ownerHeading: "CONTROLLO PROPRIETARIO",
+        ownerSub: "Aggiungi negozio, quota mensile e blocca",
+        khataAppBtn: "App Khata"
+      }
+    };
+
+    function getLocalizedUiLabels(langCode) {
+      const code = String(langCode || "ur-PK");
+      if (ALL_UI_TRANSLATIONS[code]) {
+        return ALL_UI_TRANSLATIONS[code];
+      }
+      const prefix = code.split("-")[0];
+      const matchedKey = Object.keys(ALL_UI_TRANSLATIONS).find(k => k.startsWith(prefix + "-"));
+      return matchedKey ? ALL_UI_TRANSLATIONS[matchedKey] : ALL_UI_TRANSLATIONS["en-US"];
+    }
+
+    function applyLanguageUiLabels(langCode) {
+      const code = String(langCode || "ur-PK");
+      const shortLang = code.split("-")[0] || "ur";
+      document.documentElement.setAttribute("lang", shortLang);
+      const rtlLangs = new Set(["ur-PK", "ar-SA", "fa-IR", "ps-AF", "sd-PK", "skr-PK", "bal-PK", "ks-IN"]);
+      document.documentElement.setAttribute("dir", rtlLangs.has(code) ? "rtl" : "ltr");
+
+      const lbl = getLocalizedUiLabels(code);
+      const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val) el.textContent = val;
+      };
+      const setPh = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val) el.placeholder = val;
+      };
+
+      setTxt("appHeaderSubtitle", lbl.subtitle);
+      setPh("ledgerSearchInput", lbl.searchPlaceholder);
+
+      const h2Reg = document.querySelector("#viewRegister h2");
+      const pReg = document.querySelector("#viewRegister p");
+      if (h2Reg) h2Reg.textContent = lbl.regTitle;
+      if (pReg) pReg.textContent = lbl.regDesc;
+
+      const regLabels = document.querySelectorAll("#viewRegister form label");
+      if (regLabels[0]) regLabels[0].textContent = lbl.fullName;
+      if (regLabels[1]) regLabels[1].textContent = lbl.mobileNum;
+      if (regLabels[2]) regLabels[2].textContent = lbl.shopName;
+
+      const regSubmitBtn = document.querySelector('#viewRegister form button[type="submit"]');
+      if (regSubmitBtn) {
+        regSubmitBtn.innerHTML = `<i class="fa-brands fa-whatsapp text-base"></i> ${lbl.sendDetails}`;
+      }
+
+      const alreadyRegP = document.querySelector("#viewRegister .text-center.space-y-2 p");
+      if (alreadyRegP) alreadyRegP.textContent = lbl.alreadyReg;
+
+      const loginBtn = document.querySelector("#viewRegister .text-center.space-y-2 button");
+      if (loginBtn) loginBtn.textContent = lbl.loginBtn;
+
+      const exitBtn = document.querySelector('#viewDashboard button[onclick="switchUserAccount()"]');
+      if (exitBtn) {
+        exitBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket text-rose-400"></i> ${lbl.exitBtn}`;
+      }
+
+      const voiceHeading = document.querySelector("#viewDashboard h3");
+      if (voiceHeading) {
+        voiceHeading.innerHTML = `<i class="fa-solid fa-microphone text-emerald-400"></i> ${lbl.voiceHeading} <button onclick="openOfflineGuideModal()" class="text-slate-400 hover:text-emerald-400 text-xs px-1" title="Offline Voice Help Guide"><i class="fa-solid fa-circle-question"></i></button>`;
+      }
+
+      if (!isListening) {
+        setTxt("micStatusText", lbl.bolein);
+      } else {
+        setTxt("micStatusText", lbl.stopBtn);
+      }
+
+      const kpiCards = document.querySelectorAll("#viewDashboard .grid.grid-cols-3 > div > div:first-child");
+      if (kpiCards[0]) kpiCards[0].textContent = lbl.totalBill;
+      if (kpiCards[1]) kpiCards[1].textContent = lbl.totalWasool;
+      if (kpiCards[2]) kpiCards[2].textContent = lbl.totalUdhar;
+
+      const newCustBtn = document.querySelector('#viewDashboard button[onclick="promptNewCustomer()"]');
+      if (newCustBtn) newCustBtn.textContent = lbl.newCustomer;
+
+      const saveKhataBtn = document.querySelector('#viewDashboard button[onclick="saveVoiceEntryToLedger()"]');
+      if (saveKhataBtn) {
+        saveKhataBtn.innerHTML = `<i class="fa-solid fa-plus"></i> ${lbl.saveBtn}`;
+      }
+
+      const ownerHeading = document.querySelector("#viewOwner h2");
+      const ownerSub = document.querySelector("#viewOwner p");
+      if (ownerHeading) ownerHeading.textContent = lbl.ownerHeading;
+      if (ownerSub) ownerSub.textContent = lbl.ownerSub;
+
+      const khataAppBtn = document.querySelector('#viewOwner button[onclick="exitOwnerMode()"]');
+      if (khataAppBtn) {
+        khataAppBtn.innerHTML = `<i class="fa-solid fa-arrow-left"></i> ${lbl.khataAppBtn}`;
+      }
+    }
+
+    function applyAllLanguagesOption(langCode, skipReload) {
+      if (!langCode) return;
+      selectedVoiceLang = langCode;
+      try {
+        localStorage.setItem("khata_v2_selected_lang", langCode);
+        sessionStorage.setItem("khata_v2_selected_lang", langCode);
+      } catch (e) {}
+
+      const voiceSel = document.getElementById("voiceLangSelect");
+      if (voiceSel) {
+        const exists = Array.from(voiceSel.options).some(o => o.value === langCode);
+        if (!exists) {
+          const opt = document.createElement("option");
+          opt.value = langCode;
+          opt.textContent = langCode;
+          voiceSel.appendChild(opt);
+        }
+        voiceSel.value = langCode;
+      }
+
+      const allSel = document.getElementById("allLanguagesSelect");
+      if (allSel) {
+        const existsAll = Array.from(allSel.options).some(o => o.value === langCode);
+        if (!existsAll) {
+          const optAll = document.createElement("option");
+          optAll.value = langCode;
+          optAll.textContent = langCode;
+          allSel.appendChild(optAll);
+        }
+        allSel.value = langCode;
+      }
+
+      applyLanguageUiLabels(langCode);
+
+      if (!skipReload) {
+        try {
+          window.location.reload();
+          return;
+        } catch (e) {
+          initApp();
+          showToast("Language updated: " + langCode);
+        }
+      }
+    }
+
+    function initAllLanguagesOption() {
+      let savedLang = "ur-PK";
+      try {
+        savedLang = localStorage.getItem("khata_v2_selected_lang") || sessionStorage.getItem("khata_v2_selected_lang") || "ur-PK";
+      } catch (e) {}
+      applyAllLanguagesOption(savedLang, true);
+    }
+
+    window.onload = function() {
+      initAllLanguagesOption();
+      initApp();
+    };
+  </script>
+</body>
+</html>
